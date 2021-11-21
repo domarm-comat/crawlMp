@@ -1,0 +1,13 @@
+numpy
+pyzmq
+pint
+bidict
+pyqt5
+pyqtgraph
+pyserial
+oyaml
+psutil
+natsort
+reportlab
+pandas
+tables
