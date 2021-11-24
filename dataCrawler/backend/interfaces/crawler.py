@@ -1,34 +1,58 @@
 from abc import ABC, abstractmethod
-
-from dumper import Dumper
+from typing import Any
 
 
 class Crawler(ABC):
 
-    def __init__(self, entrypoint: str, dumper: Dumper):
+    def __init__(self, entrypoint: Any, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
         self.entrypoint = entrypoint
-        self.dumper = dumper
-        self.metadata = self.init_entrypoint()
-        extracted_objects = self.extract_data_objects()
-        self.links = self.extract_links()
-        self.store_data_objects(extracted_objects)
-        self.close_entrypoint()
+        self.metadata = ()
+        self.targets = []
+        self.links = [self.entrypoint]
+        self.links_followed = []
+        self.links_error = []
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if len(self.links) > 0:
+            try:
+                next_link = self.links.pop(0)
+                self.crawl(next_link)
+                self.links_followed.append(next_link)
+            except Exception as e:
+                self.links_error.append(next_link)
+                print(f"Exception entering {self.entrypoint}, ERROR: {e}")
+            return self
+        else:
+            raise StopIteration
 
     @abstractmethod
     def init_entrypoint(self) -> tuple:
         ...
 
     @abstractmethod
-    def extract_data_objects(self) -> list:
+    def extract_targets(self) -> list:
         ...
 
+    @abstractmethod
     def extract_links(self) -> list:
         ...
 
-    def store_data_objects(self, data_objects: list):
-        for data_object in data_objects:
-            self.dumper.dump(data_object)
+    @abstractmethod
+    def is_valid(self, item: Any) -> bool:
+        ...
 
     @abstractmethod
     def close_entrypoint(self):
         ...
+
+    def crawl(self, entrypoint: Any):
+        self.entrypoint = entrypoint
+        self.metadata = self.init_entrypoint()
+        self.targets = self.extract_targets()
+        self.links += self.extract_links()
+        self.close_entrypoint()

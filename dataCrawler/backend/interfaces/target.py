@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Data_object(ABC):
+class Target(ABC):
 
     @abstractmethod
     def data(self):
