@@ -35,11 +35,3 @@ class DirCrawler(Crawler):
 
     def close_entrypoint(self):
         ...
-
-
-# class DirCrawlerMp(CrawlerMp, DirCrawler):
-#
-#     def __init__(self, entrypoint: str, max_depth: int = math.inf, num_proc: int = 4, *args, **kwargs):
-#         self.max_depth = max_depth
-#         self.depth_offset = entrypoint.count(os.sep)
-#         CrawlerMp.__init__(self, entrypoint, num_proc, args, kwargs)

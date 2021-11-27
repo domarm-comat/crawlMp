@@ -13,11 +13,11 @@ def id_gen():
 class CrawlWorker(Process):
     id_gen = id_gen()
     jobs_acquiring_lock = Lock()
-    results = main_manager.dict(
-        {"targets": main_manager.list(),
-         "links_followed": main_manager.list(),
-         "links_error": main_manager.list()}
-    )
+    results = main_manager.dict({
+        "targets": main_manager.list(),
+        "links_followed": main_manager.list(),
+        "links_error": main_manager.list()
+    })
 
     def __init__(self, crawler_class, sig_worker_idle, jobs_queue, buffer_size=64, *args, **kwargs):
         Process.__init__(self)
@@ -71,12 +71,8 @@ class CrawlerManager:
 
     def _init_workers(self):
         for i in range(self.num_proc):
-            try:
-                entrypoint = self.jobs_queue.pop(0)
-            except IndexError:
-                entrypoint = None
             worker = CrawlWorker(self.crawler_class, self.sig_worker_idle, self.jobs_queue,
-                                 entrypoint=entrypoint, *self.args, **self.kwargs)
+                                 entrypoint=None, *self.args, **self.kwargs)
             self.workers.append(worker)
             worker.start()
             worker.wake_signal.set()
