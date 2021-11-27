@@ -11,15 +11,18 @@ parser.add_argument("--buffer_size", default=64, type=int)
 args = parser.parse_args()
 
 start_time = time_ns()
+results = None
 if args.processes == 1:
-    for crawler in DirCrawler(args.entrypoint):
+    for results in DirCrawler(args.entrypoint):
         ...
-    results = crawler
 else:
     manager = CrawlerManager(DirCrawler, links=[args.entrypoint], num_proc=args.processes, buffer_size=args.buffer_size)
     results = manager.start()
 
-print(f"Crawled in: {(time_ns() - start_time) * 1e-9} ms")
-print(f"Number of results: {len(results.targets)}")
-print(f"Number of followed links: {len(results.links_followed)}")
-print(f"Number of errors: {len(results.links_error)}")
+if results is not None:
+    print(f"Crawled in: {(time_ns() - start_time) * 1e-9} ms")
+    print(f"Number of results: {len(results.targets)}")
+    print(f"Number of followed links: {len(results.links_followed)}")
+    print(f"Number of errors: {len(results.links_error)}")
+else:
+    print("No results...")
