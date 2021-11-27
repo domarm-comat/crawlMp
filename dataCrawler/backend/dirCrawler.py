@@ -9,7 +9,6 @@ class DirCrawler(Crawler):
 
     def __init__(self, entrypoint: str, max_depth: int = math.inf):
         self.max_depth = max_depth
-        self.depth_offset = entrypoint.count(os.sep)
         Crawler.__init__(self, entrypoint)
 
     def init_entrypoint(self) -> tuple:
@@ -25,7 +24,7 @@ class DirCrawler(Crawler):
 
     def extract_links(self) -> list:
         root, dirs, files = next(os.walk(self.entrypoint))
-        path_depth = self.entrypoint.count(os.sep) - self.depth_offset
+        path_depth = self.entrypoint.count(os.sep)
         if path_depth < self.max_depth:
             return [os.path.join(self.entrypoint, path) for path in dirs]
         else:
@@ -36,3 +35,11 @@ class DirCrawler(Crawler):
 
     def close_entrypoint(self):
         ...
+
+
+# class DirCrawlerMp(CrawlerMp, DirCrawler):
+#
+#     def __init__(self, entrypoint: str, max_depth: int = math.inf, num_proc: int = 4, *args, **kwargs):
+#         self.max_depth = max_depth
+#         self.depth_offset = entrypoint.count(os.sep)
+#         CrawlerMp.__init__(self, entrypoint, num_proc, args, kwargs)
