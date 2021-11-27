@@ -7,7 +7,7 @@ from dataCrawler.backend.interfaces.crawler import Crawler
 
 class DirCrawler(Crawler):
 
-    def __init__(self, entrypoint: str, max_depth: int = math.inf):
+    def __init__(self, entrypoint: str, max_depth: int = math.inf) -> None:
         self.max_depth = max_depth
         Crawler.__init__(self, entrypoint)
 
@@ -33,5 +33,5 @@ class DirCrawler(Crawler):
     def is_valid(self, item: str) -> bool:
         return True
 
-    def close_entrypoint(self):
-        ...
+    def close_entrypoint(self) -> None:
+        pass

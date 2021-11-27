@@ -47,10 +47,10 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def close_entrypoint(self):
+    def close_entrypoint(self) -> None:
         ...
 
-    def crawl(self, entrypoint: Any):
+    def crawl(self, entrypoint: Any) -> None:
         if entrypoint is None:
             return
         self.entrypoint = entrypoint
