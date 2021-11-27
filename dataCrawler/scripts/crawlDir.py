@@ -3,6 +3,7 @@ from time import time_ns
 
 from dataCrawler.backend.dirCrawler import DirCrawler
 from dataCrawler.backend.interfaces.crawlerManager import CrawlerManager
+from dataCrawler.snippets.output import print_results_summary
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--entrypoint")
@@ -14,15 +15,9 @@ start_time = time_ns()
 results = None
 if args.processes == 1:
     for results in DirCrawler(args.entrypoint):
-        ...
+        pass
 else:
     manager = CrawlerManager(DirCrawler, links=[args.entrypoint], num_proc=args.processes, buffer_size=args.buffer_size)
     results = manager.start()
 
-if results is not None:
-    print(f"Crawled in: {(time_ns() - start_time) * 1e-9} ms")
-    print(f"Number of results: {len(results.targets)}")
-    print(f"Number of followed links: {len(results.links_followed)}")
-    print(f"Number of errors: {len(results.links_error)}")
-else:
-    print("No results...")
+print_results_summary(start_time, results)
