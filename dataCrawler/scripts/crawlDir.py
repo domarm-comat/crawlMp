@@ -1,9 +1,7 @@
-from multiprocessing import Manager
-from time import time, time_ns, sleep
+from time import time_ns
 
 from dataCrawler.backend.dirCrawler import DirCrawler
-from dataCrawler.backend.interfaces.crawlerManager import CrawlWorker, CrawlerManager
-
+from dataCrawler.backend.interfaces.crawlerManager import CrawlerManager
 
 a = time_ns()
 
@@ -17,7 +15,11 @@ a = time_ns()
 # crawler.crawl_async()
 
 # print(len(crawler.targets))
-manager = CrawlerManager(DirCrawler, links=["/"], num_proc=8)
-manager.start()
+manager = CrawlerManager(DirCrawler, links=["/"], num_proc=8, buffer_size=64)
+results = manager.start()
+print(len(results["targets"]))
+
+# for worker in manager.workers:
+#     print(worker.crawler)
 
 print((time_ns() - a) * 1e-9)

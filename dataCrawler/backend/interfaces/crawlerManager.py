@@ -1,5 +1,7 @@
 from multiprocessing import Manager, Event, Process, Lock
 
+main_manager = Manager()
+
 
 def id_gen():
     id = 0
@@ -11,6 +13,11 @@ def id_gen():
 class CrawlWorker(Process):
     id_gen = id_gen()
     jobs_acquiring_lock = Lock()
+    results = main_manager.dict(
+        {"targets": main_manager.list(),
+         "links_followed": main_manager.list(),
+         "links_error": main_manager.list()}
+    )
 
     def __init__(self, crawler_class, sig_worker_idle, jobs_queue, buffer_size=64, *args, **kwargs):
         Process.__init__(self)
@@ -25,14 +32,14 @@ class CrawlWorker(Process):
         self.kwargs = kwargs
 
     def run(self) -> None:
-        # print(f"Worker {self.worker_id} start")
         crawler = self.crawler_class(*self.args, **self.kwargs)
         while self.wake_signal.wait():
             if crawler.links:
                 next(crawler)
                 if self.sig_worker_idle.is_set() and len(crawler.links) > self.buffer_size:
-                    self.jobs_queue += crawler.links[self.buffer_size:]
-                    del crawler.links[self.buffer_size:]
+                    with self.jobs_acquiring_lock:
+                        self.jobs_queue += crawler.links[self.buffer_size:]
+                        del crawler.links[self.buffer_size:]
             elif not self.jobs_queue:
                 self.wake_signal.clear()
                 self.sig_worker_idle.set()
@@ -42,9 +49,9 @@ class CrawlWorker(Process):
                 with self.jobs_acquiring_lock:
                     crawler.links += self.jobs_queue[:self.buffer_size]
                     del self.jobs_queue[:self.buffer_size]
-
-        # print(len(crawler.targets))
-        # print(f"Worker {self.worker_id} quit")
+        self.results["targets"] += crawler.targets
+        self.results["links_followed"] += crawler.links_followed
+        self.results["links_error"] += crawler.links_error
 
     def stop(self):
         self.stop_signal.set()
@@ -53,10 +60,9 @@ class CrawlWorker(Process):
 class CrawlerManager:
 
     def __init__(self, crawler_class, links, num_proc=4, *args, **kwargs):
-        self.manager = Manager()
         self.num_proc = num_proc
         self.crawler_class = crawler_class
-        self.jobs_queue = self.manager.list(links)
+        self.jobs_queue = main_manager.list(links)
         self.sig_worker_idle = Event()
         self.jobs_acquiring_lock = Lock()
         self.args = args
@@ -93,7 +99,11 @@ class CrawlerManager:
                 self.stop()
                 break
 
+        worker = None
         for worker in self.workers:
             worker.join()
 
-        print("All done!")
+        if worker is not None:
+            return worker.results
+        else:
+            return []
