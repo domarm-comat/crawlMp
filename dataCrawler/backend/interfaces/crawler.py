@@ -19,13 +19,12 @@ class Crawler(ABC):
 
     def __next__(self):
         if len(self.links) > 0:
-            try:
-                next_link = self.links.pop(0)
-                if next_link is not None:
+            next_link = self.links.pop(0)
+            if next_link is not None:
+                try:
                     self.crawl(next_link)
-                    self.links_followed.append(next_link)
-            except Exception:
-                self.links_error.append(next_link)
+                except Exception:
+                    self.links_error.append(next_link)
             return self
         else:
             raise StopIteration
