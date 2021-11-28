@@ -42,7 +42,7 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def is_valid(self, item: Any) -> bool:
+    def is_target(self, item: Any) -> bool:
         ...
 
     @abstractmethod

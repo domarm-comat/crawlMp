@@ -1,5 +1,6 @@
 from multiprocessing import Manager, Event, Process, Lock
-from typing import Any, Optional
+from threading import Thread
+from typing import Any, Optional, Callable
 
 # Create global Process Manager
 main_manager = Manager()
@@ -52,7 +53,10 @@ class CrawlWorker(Process):
         iterations = 0
         # Crawl until wake_signal is high
         while self.wake_signal.wait():
-            if crawler.links:
+            if self.stop_signal.is_set():
+                # Check if Worker should stop
+                break
+            elif crawler.links:
                 # Crawl next link
                 next(crawler)
                 if self.sig_worker_idle.is_set() and len(crawler.links) > self.buffer_size:
@@ -71,9 +75,6 @@ class CrawlWorker(Process):
                 self.wake_signal.clear()
                 # set worker_idle_signal to high
                 self.sig_worker_idle.set()
-                # Check if Worker should stop
-                if self.stop_signal.is_set():
-                    break
             else:
                 # Crawler has no links to follow, but there are some links already in job_queue
                 with self.jobs_acquiring_lock:
@@ -102,6 +103,7 @@ class CrawlerManager:
         self.args = args
         self.kwargs = kwargs
         self.workers = []
+        self.running = False
 
     def _init_workers(self) -> None:
         """
@@ -116,7 +118,7 @@ class CrawlerManager:
             worker.start()
             worker.wake_signal.set()
 
-    def stop(self) -> None:
+    def stop_workers(self) -> None:
         """
         Stop all workers
         :return: None
@@ -125,11 +127,11 @@ class CrawlerManager:
             worker.stop()
             worker.wake_signal.set()
 
-    def start(self) -> Optional[CrawlWorker]:
-        """
-        Start Manager ant it's Workers
-        :return: CrawlWorker or None
-        """
+    def stop(self) -> None:
+        self.running = False
+
+    def _start(self, callback: Callable = None) -> Optional[CrawlWorker]:
+        self.running = True
         # Spawn and start all workers
         self._init_workers()
         while self.sig_worker_idle.wait():
@@ -144,10 +146,10 @@ class CrawlerManager:
                     idle_workers += 1
             # Clear worker idle signal
             self.sig_worker_idle.clear()
-            if idle_workers == self.num_proc and len(self.jobs_list) == 0:
+            if not self.running or (idle_workers == self.num_proc and len(self.jobs_list) == 0):
                 # All workers are idle and job_list is empty
                 # All jobs are finished, close all workers
-                self.stop()
+                self.stop_workers()
                 break
 
         worker = None
@@ -155,8 +157,20 @@ class CrawlerManager:
             # Wait until all workers are finished
             worker.join()
 
-        if worker is not None:
-            # Return last worker which has reference to all results
-            return worker
+        if callback is not None:
+            callback(worker)
         else:
-            return None
+            return worker
+
+    def start(self, callback: Callable = None) -> Optional[CrawlWorker]:
+        """
+        Start Manager ant it's Workers
+        If callback is set, then start crawlers in the Thread and call callback in the end.
+        :param callable callback: Callable
+        :return: CrawlWorker or None
+        """
+        if callback is None:
+            return self._start()
+        else:
+            assert callable(callback)
+            Thread(target=self._start, args=(callback,)).start()

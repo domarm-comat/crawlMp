@@ -12,25 +12,29 @@ class DirCrawler(Crawler):
         Crawler.__init__(self, entrypoint)
 
     def init_entrypoint(self) -> tuple:
+        """
+        Walk directory and extract root, dirs, files
+        :return list: (root, dirs, files)
+        """
         if not os.path.isdir(self.entrypoint):
             raise CrawlException("Entrypoint must be existing directory!")
         if os.path.islink(self.entrypoint):
             raise CrawlException("Link entrypoint is ignored!")
-        return True,
+        return next(os.walk(self.entrypoint))
 
     def extract_targets(self) -> list:
-        root, dirs, files = next(os.walk(self.entrypoint))
-        return list(filter(self.is_valid, files))
+        files = self.metadata[2]
+        return list(filter(self.is_target, files))
 
     def extract_links(self) -> list:
-        root, dirs, files = next(os.walk(self.entrypoint))
+        root, dirs, files = self.metadata
         path_depth = self.entrypoint.count(os.sep)
         if path_depth < self.max_depth:
-            return [os.path.join(self.entrypoint, path) for path in dirs]
+            return [os.path.join(root, path) for path in dirs]
         else:
             return []
 
-    def is_valid(self, item: str) -> bool:
+    def is_target(self, item: str) -> bool:
         return True
 
     def close_entrypoint(self) -> None:

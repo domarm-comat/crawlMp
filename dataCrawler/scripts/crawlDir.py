@@ -17,7 +17,9 @@ if args.processes == 1:
     for results in DirCrawler(args.entrypoint):
         pass
 else:
-    manager = CrawlerManager(DirCrawler, links=[args.entrypoint], num_proc=args.processes, buffer_size=args.buffer_size)
-    results = manager.start()
+    def done(crawler_results):
+        print_results_summary(start_time, crawler_results)
 
-print_results_summary(start_time, results)
+
+    manager = CrawlerManager(DirCrawler, links=[args.entrypoint], num_proc=args.processes, buffer_size=args.buffer_size)
+    manager.start(done)
