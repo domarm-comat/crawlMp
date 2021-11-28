@@ -4,6 +4,7 @@ import re
 from crawlMp.snippets.output import print_summary
 from crawlMp.sources.crawlerManager import CrawlerManager
 from crawlMp.sources.fileCrawler import FileSearchCrawler
+from crawlMp.sources.results import Results
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--links", type=str, nargs="+", help="Entry points to start search")
@@ -15,7 +16,7 @@ args = parser.parse_args()
 search_pattern = re.compile(args.search_pattern)
 
 
-def on_done(crawler_results):
+def on_done(crawler_results: Results) -> None:
     print_summary(crawler_results)
 
 
@@ -23,7 +24,7 @@ if args.processes == 1:
     results = None
     for results in FileSearchCrawler(args.links, search_pattern):
         pass
-    on_done(results)
+    on_done(results.get_results())
 else:
     manager = CrawlerManager(FileSearchCrawler, links=args.links, num_proc=args.processes,
                              buffer_size=args.buffer_size, search_pattern=search_pattern)

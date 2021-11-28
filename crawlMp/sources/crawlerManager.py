@@ -3,6 +3,8 @@ from threading import Thread
 from typing import Any, Optional, Callable
 
 # Create global Process Manager
+from crawlMp.sources.results import Results
+
 main_manager = Manager()
 
 
@@ -91,6 +93,9 @@ class CrawlWorker(Process):
         """
         self.stop_signal.set()
 
+    def get_results(self):
+        return Results(targets=self.targets, links_followed=self.links_followed, links_error=self.links_error)
+
 
 class CrawlerManager:
 
@@ -160,7 +165,7 @@ class CrawlerManager:
 
         # Call the Callback if necessary
         if callback is not None:
-            callback(worker)
+            callback(worker.get_results())
         else:
             return worker
 

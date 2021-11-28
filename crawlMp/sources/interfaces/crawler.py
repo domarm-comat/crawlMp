@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+from crawlMp.sources.results import Results
+
 
 class Crawler(ABC):
 
@@ -48,6 +50,9 @@ class Crawler(ABC):
     @abstractmethod
     def close_entrypoint(self) -> None:
         ...
+
+    def get_results(self):
+        return Results(targets=self.targets, links_followed=self.links_followed, links_error=self.links_error)
 
     def crawl(self, entrypoint: Any) -> None:
         if entrypoint is None:
