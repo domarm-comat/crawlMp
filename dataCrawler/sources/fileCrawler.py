@@ -1,5 +1,6 @@
 import math
 import os
+from re import Pattern
 
 from dataCrawler import CrawlException
 from dataCrawler.sources.interfaces.crawler import Crawler
@@ -39,9 +40,6 @@ class FileCrawler(Crawler):
 
     def close_entrypoint(self) -> None:
         pass
-
-
-from re import Pattern
 
 
 class FileSearchCrawler(FileCrawler):
