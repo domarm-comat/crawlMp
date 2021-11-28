@@ -2,14 +2,14 @@ import argparse
 import re
 from time import time_ns
 
-from dataCrawler.sources.fileCrawler import FileSearchCrawler
-from dataCrawler.sources.interfaces.crawlerManager import CrawlerManager
-from dataCrawler.snippets.output import print_results_summary
+from crawlMp.sources.fileCrawler import FileSearchCrawler
+from crawlMp.sources.interfaces.crawlerManager import CrawlerManager
+from crawlMp.snippets.output import print_results_summary
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--entrypoint")
 parser.add_argument("--processes", default=8, type=int)
-parser.add_argument("--search_pattern", default=".", type=str)
+parser.add_argument("--search_pattern", default="\.zip$", type=str)
 parser.add_argument("--buffer_size", default=64, type=int)
 args = parser.parse_args()
 

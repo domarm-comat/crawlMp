@@ -2,8 +2,8 @@ import math
 import os
 from re import Pattern
 
-from dataCrawler import CrawlException
-from dataCrawler.sources.interfaces.crawler import Crawler
+from crawlMp import CrawlException
+from crawlMp.sources.interfaces.crawler import Crawler
 
 
 class FileCrawler(Crawler):
