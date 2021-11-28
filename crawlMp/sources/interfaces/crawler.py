@@ -4,13 +4,13 @@ from typing import Any
 
 class Crawler(ABC):
 
-    def __init__(self, entrypoint: Any, *args, **kwargs):
+    def __init__(self, links: list, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
-        self.entrypoint = entrypoint
         self.metadata = ()
         self.targets = []
-        self.links = [self.entrypoint]
+        self.entrypoint = None
+        self.links = links if links is not None else []
         self.links_followed = []
         self.links_error = []
 

@@ -8,9 +8,9 @@ from crawlMp.sources.interfaces.crawler import Crawler
 
 class FileCrawler(Crawler):
 
-    def __init__(self, entrypoint: str, max_depth: int = math.inf) -> None:
+    def __init__(self, links: list, max_depth: int = math.inf) -> None:
         self.max_depth = max_depth
-        Crawler.__init__(self, entrypoint)
+        Crawler.__init__(self, links)
 
     def init_entrypoint(self) -> tuple:
         """
@@ -19,7 +19,7 @@ class FileCrawler(Crawler):
         """
         if not os.path.isdir(self.entrypoint):
             raise CrawlException("Entrypoint must be existing directory!")
-        if os.path.islink(self.entrypoint):
+        elif os.path.islink(self.entrypoint):
             raise CrawlException("Link entrypoint is ignored!")
         return next(os.walk(self.entrypoint))
 
@@ -39,14 +39,15 @@ class FileCrawler(Crawler):
         return True
 
     def close_entrypoint(self) -> None:
-        pass
+        self.entrypoint = None
+        self.metadata = ()
 
 
 class FileSearchCrawler(FileCrawler):
 
-    def __init__(self, entrypoint: str, search_pattern: Pattern, max_depth: int = math.inf) -> None:
+    def __init__(self, links: list, search_pattern: Pattern, max_depth: int = math.inf) -> None:
         self.search_pattern = search_pattern
-        FileCrawler.__init__(self, entrypoint, max_depth)
+        FileCrawler.__init__(self, links, max_depth)
 
     def is_target(self, item: str) -> bool:
         return self.search_pattern.search(item) is not None

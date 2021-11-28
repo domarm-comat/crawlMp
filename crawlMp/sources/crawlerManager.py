@@ -95,6 +95,7 @@ class CrawlWorker(Process):
 class CrawlerManager:
 
     def __init__(self, crawler_class, links: list, num_proc: int = 4, *args: Any, **kwargs: Any) -> None:
+        assert num_proc > 0
         self.num_proc = num_proc
         self.crawler_class = crawler_class
         self.jobs_list = main_manager.list(links)
@@ -113,7 +114,7 @@ class CrawlerManager:
         """
         for i in range(self.num_proc):
             worker = CrawlWorker(self.crawler_class, self.sig_worker_idle, self.jobs_list,
-                                 entrypoint=None, *self.args, **self.kwargs)
+                                 links=None, *self.args, **self.kwargs)
             self.workers.append(worker)
             worker.start()
             worker.wake_signal.set()
