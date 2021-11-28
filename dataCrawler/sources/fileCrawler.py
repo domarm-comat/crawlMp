@@ -2,10 +2,10 @@ import math
 import os
 
 from dataCrawler import CrawlException
-from dataCrawler.backend.interfaces.crawler import Crawler
+from dataCrawler.sources.interfaces.crawler import Crawler
 
 
-class DirCrawler(Crawler):
+class FileCrawler(Crawler):
 
     def __init__(self, entrypoint: str, max_depth: int = math.inf) -> None:
         self.max_depth = max_depth
@@ -23,8 +23,8 @@ class DirCrawler(Crawler):
         return next(os.walk(self.entrypoint))
 
     def extract_targets(self) -> list:
-        files = self.metadata[2]
-        return list(filter(self.is_target, files))
+        root, dirs, files = self.metadata
+        return [os.path.join(root, filename) for filename in filter(self.is_target, files)]
 
     def extract_links(self) -> list:
         root, dirs, files = self.metadata
@@ -39,3 +39,16 @@ class DirCrawler(Crawler):
 
     def close_entrypoint(self) -> None:
         pass
+
+
+from re import Pattern
+
+
+class FileSearchCrawler(FileCrawler):
+
+    def __init__(self, entrypoint: str, search_pattern: Pattern, max_depth: int = math.inf) -> None:
+        self.search_pattern = search_pattern
+        FileCrawler.__init__(self, entrypoint, max_depth)
+
+    def is_target(self, item: str) -> bool:
+        return self.search_pattern.search(item) is not None

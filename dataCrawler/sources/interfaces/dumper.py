@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from dataCrawler.backend.interfaces.target import Target
+from dataCrawler.sources.interfaces.target import Target
 
 
 class Dumper(ABC):
