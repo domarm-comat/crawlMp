@@ -1,3 +1,3 @@
 # data-crawler
 
-Basic data crawler backend and frontend
+Single and Multi Process Resource Crawler

@@ -158,6 +158,7 @@ class CrawlerManager:
             # Wait until all workers are finished
             worker.join()
 
+        # Call the Callback if necessary
         if callback is not None:
             callback(worker)
         else:
