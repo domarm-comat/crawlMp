@@ -27,5 +27,5 @@ if args.processes == 1:
     on_done(results.get_results())
 else:
     manager = CrawlerManager(FileSearchCrawler, links=args.links, num_proc=args.processes,
-                             buffer_size=args.buffer_size, search_pattern=search_pattern)
+                             buffer_size=args.buffer_size, pattern=search_pattern)
     manager.start(on_done)

@@ -28,4 +28,4 @@ def print_results(results: Results = None) -> None:
     :param results:
     :return: None
     """
-    print(*results.targets, sep="\n", end="")
+    print(*results.targets_found, sep="\n", end="")

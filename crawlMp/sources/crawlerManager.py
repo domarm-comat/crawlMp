@@ -18,9 +18,9 @@ def worker_id_gen():
 class CrawlWorker(Process):
     id_gen = worker_id_gen()
     jobs_acquiring_lock = Lock()
-    targets = main_manager.list()
+    targets_found = main_manager.list()
     links_followed = main_manager.list()
-    links_error = main_manager.list()
+    links_failed = main_manager.list()
 
     def __init__(self, crawler_class, sig_worker_idle: Event, jobs_list: list, buffer_size: int = 64, *args: Any,
                  **kwargs: Any) -> None:
@@ -45,12 +45,12 @@ class CrawlWorker(Process):
         crawler = self.crawler_class(*self.args, **self.kwargs)
 
         def flush_results():
-            self.targets += crawler.targets
+            self.targets_found += crawler.targets_found
             self.links_followed += crawler.links_followed
-            self.links_error += crawler.links_error
-            crawler.targets = []
+            self.links_failed += crawler.links_failed
+            crawler.targets_found = []
             crawler.links_followed = []
-            crawler.links_error = []
+            crawler.links_failed = []
 
         iterations = 0
         # Crawl until wake_signal is high
@@ -94,7 +94,9 @@ class CrawlWorker(Process):
         self.stop_signal.set()
 
     def get_results(self):
-        return Results(targets=self.targets, links_followed=self.links_followed, links_error=self.links_error)
+        return Results(targets_found=self.targets_found,
+                       links_followed=self.links_followed,
+                       links_failed=self.links_failed)
 
 
 class CrawlerManager:
@@ -167,7 +169,7 @@ class CrawlerManager:
         if callback is not None:
             callback(worker.get_results())
         else:
-            return worker
+            return worker.get_results()
 
     def start(self, callback: Callable = None) -> Optional[CrawlWorker]:
         """
@@ -177,6 +179,7 @@ class CrawlerManager:
         :return: CrawlWorker or None
         """
         if callback is None:
+            print("now")
             return self._start()
         else:
             assert callable(callback)

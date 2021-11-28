@@ -21,7 +21,10 @@ class FileCrawler(Crawler):
             raise CrawlException("Entrypoint must be existing directory!")
         elif os.path.islink(self.entrypoint):
             raise CrawlException("Link entrypoint is ignored!")
-        return next(os.walk(self.entrypoint))
+        try:
+            return next(os.walk(self.entrypoint))
+        except StopIteration:
+            raise CrawlException("Entrypoint could not be accessed!")
 
     def extract_targets(self) -> list:
         root, dirs, files = self.metadata
@@ -39,15 +42,14 @@ class FileCrawler(Crawler):
         return True
 
     def close_entrypoint(self) -> None:
-        self.entrypoint = None
-        self.metadata = ()
+        pass
 
 
 class FileSearchCrawler(FileCrawler):
 
-    def __init__(self, links: list, search_pattern: Pattern, max_depth: int = math.inf) -> None:
-        self.search_pattern = search_pattern
+    def __init__(self, links: list, pattern: Pattern, max_depth: int = math.inf) -> None:
+        self.pattern = pattern
         FileCrawler.__init__(self, links, max_depth)
 
     def is_target(self, item: str) -> bool:
-        return self.search_pattern.search(item) is not None
+        return self.pattern.search(item) is not None
