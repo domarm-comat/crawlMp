@@ -6,6 +6,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="crawlMp",
     version="0.0.1",
+    license='MIT',
     author="Martin Domaracky",
     author_email="domarm@comat.sk",
     description="Multi Process Crawl toolset",
@@ -16,8 +17,8 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+        "Topic :: Software Development :: Libraries",
+        "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Intended Audience :: Science/Research",
     ],

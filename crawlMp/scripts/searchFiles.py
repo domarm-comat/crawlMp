@@ -10,7 +10,7 @@ from crawlMp.sources.results import Results
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", "--links", type=str, nargs="+", help="Entry points to start search", required=True)
-parser.add_argument("-o", "--output", default=[OUTPUT_SUMMARY], type=str, nargs="+",
+parser.add_argument("-o", "--output", default=[OUTPUT_LIST], type=str, nargs="+",
                     choices=[OUTPUT_SUMMARY, OUTPUT_LIST],
                     help=f"Entry points to start search")
 parser.add_argument("-np", "--processes", default=8, type=int, help="Number of processes used, minimum is 1")
