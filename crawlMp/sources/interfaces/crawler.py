@@ -8,6 +8,7 @@ from crawlMp.sources.results import Results
 class Crawler(ABC):
 
     def __init__(self, links: list, *args, **kwargs):
+        assert isinstance(links, list)
         self.args = args
         self.kwargs = kwargs
         self.metadata = ()
@@ -101,8 +102,8 @@ class Crawler(ABC):
         if entrypoint is None:
             return
         self.entrypoint = entrypoint
-        self.links_followed.append(entrypoint)
         self.metadata = self.init_entrypoint()
+        self.links_followed.append(entrypoint)
         self.targets_found += self.extract_targets()
         self.links += self.extract_links()
         self.close_entrypoint()
