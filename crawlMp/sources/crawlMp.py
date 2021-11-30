@@ -76,6 +76,7 @@ class CrawlMp:
         output = worker.get_results()
         # Call the Callback if necessary
         if callback is not None:
+            print(callback)
             callback(output)
         else:
             return output
