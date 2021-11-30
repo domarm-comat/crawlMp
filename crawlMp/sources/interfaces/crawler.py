@@ -7,8 +7,8 @@ from crawlMp.sources.results import Results
 
 class Crawler(ABC):
 
-    def __init__(self, links: list, *args, **kwargs):
-        assert isinstance(links, list)
+    def __init__(self, links: list = None, *args, **kwargs):
+        assert isinstance(links, list) or links is None
         self.args = args
         self.kwargs = kwargs
         self.metadata = ()

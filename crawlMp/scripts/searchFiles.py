@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 import argparse
-import re
 
 from crawlMp.constants import *
 from crawlMp.snippets.output import print_summary, print_list
-from crawlMp.sources.crawlerManager import CrawlerManager
+from crawlMp.sources.crawlMp import CrawlMp
 from crawlMp.sources.fileCrawler import FileSearchCrawler
 from crawlMp.sources.results import Results
 
@@ -18,8 +17,6 @@ parser.add_argument("-s", "--search", default=".", type=str, help="RegExp filena
 parser.add_argument("-bs", "--buffer_size", default=64, type=int, help="Buffer links size, only used if processes > 1")
 args = parser.parse_args()
 
-search = re.compile(args.search)
-
 
 def on_done(crawler_results: Results) -> None:
     for output_mode in args.output:
@@ -31,10 +28,10 @@ def on_done(crawler_results: Results) -> None:
 
 if args.processes == 1:
     results = None
-    for results in FileSearchCrawler(args.links, search):
+    for results in FileSearchCrawler(args.links, args.search):
         pass
     on_done(results.get_results())
 else:
-    manager = CrawlerManager(FileSearchCrawler, links=args.links, num_proc=args.processes,
-                             buffer_size=args.buffer_size, pattern=search)
+    manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes,
+                      buffer_size=args.buffer_size, pattern=args.search)
     manager.start(on_done)

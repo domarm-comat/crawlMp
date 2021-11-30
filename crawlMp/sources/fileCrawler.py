@@ -1,6 +1,6 @@
 import math
 import os
-from re import Pattern
+import re
 
 from crawlMp import CrawlException
 from crawlMp.sources.interfaces.crawler import Crawler
@@ -24,6 +24,7 @@ class FileCrawler(Crawler):
         try:
             return next(os.walk(self.entrypoint))
         except StopIteration:
+            # If for any reason walk can't be finished raise an error
             raise CrawlException("Entrypoint could not be accessed!")
 
     def extract_targets(self) -> list:
@@ -47,8 +48,8 @@ class FileCrawler(Crawler):
 
 class FileSearchCrawler(FileCrawler):
 
-    def __init__(self, links: list, pattern: Pattern, max_depth: int = math.inf) -> None:
-        self.pattern = pattern
+    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf) -> None:
+        self.pattern = re.compile(pattern)
         FileCrawler.__init__(self, links, max_depth)
 
     def is_target(self, item: str) -> bool:

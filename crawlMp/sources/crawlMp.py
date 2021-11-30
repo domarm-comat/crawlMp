@@ -7,7 +7,7 @@ from crawlMp import share_manager
 from crawlMp.sources.crawlWorker import CrawlWorker
 
 
-class CrawlerManager:
+class CrawlMp:
 
     def __init__(self, crawler_class, links: list, num_proc: int = 4, *args: Any, **kwargs: Any) -> None:
         assert num_proc > 0
