@@ -27,6 +27,11 @@ class CrawlMp:
         Number of workers equals num_proc attribute value.
         :return: None
         """
+        # Reset results
+        CrawlWorker.targets_found[:] = []
+        CrawlWorker.links_followed[:] = []
+        CrawlWorker.links_failed[:] = []
+
         for i in range(self.num_proc):
             worker = CrawlWorker(self.crawler_class, self.sig_worker_idle, self.jobs_list,
                                  links=None, *self.args, **self.kwargs)
@@ -50,23 +55,28 @@ class CrawlMp:
         self.running = True
         # Spawn and start all workers
         self._init_workers()
-        while self.sig_worker_idle.wait():
-            # If one of the Workers is Idle
-            # Count number of Idle workers
+        while True:
             idle_workers = 0
-            for worker in self.workers:
-                if not worker.wake_signal.is_set():
-                    # Worker's wake_signal is low
-                    # Wake up Worker
-                    worker.wake_signal.set()
-                    idle_workers += 1
-            # Clear worker idle signal
-            self.sig_worker_idle.clear()
-            if not self.running or (idle_workers == self.num_proc and len(self.jobs_list) == 0):
-                # All workers are idle and job_list is empty
-                # All jobs are finished, close all workers
-                self.stop_workers()
-                break
+            try:
+                self.sig_worker_idle.wait(timeout=1)
+                # If one of the Workers is Idle
+                # Count number of Idle workers
+                for worker in self.workers:
+                    if not worker.wake_signal.is_set():
+                        # Worker's wake_signal is low
+                        # Wake up Worker
+                        worker.wake_signal.set()
+                        idle_workers += 1
+                # Clear worker idle signal
+                self.sig_worker_idle.clear()
+            except RuntimeError:
+                continue
+            finally:
+                if not self.running or (idle_workers == self.num_proc and len(self.jobs_list) == 0):
+                    # All workers are idle and job_list is empty
+                    # All jobs are finished, close all workers
+                    self.stop_workers()
+                    break
 
         worker = None
         for worker in self.workers:
@@ -76,10 +86,12 @@ class CrawlMp:
         output = worker.get_results()
         # Call the Callback if necessary
         if callback is not None:
-            print(callback)
             callback(output)
         else:
             return output
+
+    def get_results(self):
+        return self.workers[0].get_results()
 
     def start(self, callback: Callable = None) -> Optional[CrawlWorker]:
         """

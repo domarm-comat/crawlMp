@@ -17,9 +17,7 @@ class FileCrawler(Crawler):
         Walk directory and extract root, dirs, files
         :return list: (root, dirs, files)
         """
-        if not os.path.isdir(self.entrypoint):
-            raise CrawlException("Entrypoint must be existing directory!")
-        elif os.path.islink(self.entrypoint):
+        if os.path.islink(self.entrypoint):
             raise CrawlException("Link entrypoint is ignored!")
         try:
             return next(os.walk(self.entrypoint))
