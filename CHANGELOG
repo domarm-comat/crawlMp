@@ -1,1 +1,5 @@
+Version 0.1.1
 
+- basic interface implemented
+- added file system crawler with search function
+- unit tests are in effect together with code coverage
