@@ -84,12 +84,26 @@ class CrawlMp:
         else:
             return self.results
 
-    def get_results(self):
-        return self.workers[0].get_results()
+    def _start_sp(self, callback: Callable = None) -> Results:
+        self.running = True
+        crawl = None
+        for crawl in self.crawler_class(self.jobs_list[:], *self.args, **self.kwargs):
+            if not self.running:
+                break
 
-    def start(self, callback: Callable = None, reset_results=True) -> Optional[CrawlWorker]:
+        if crawl is not None:
+            self.results.targets_found += crawl.results.targets_found
+            self.results.links_followed += crawl.results.links_followed
+            self.results.links_failed += crawl.results.links_failed
+
+        if callback is not None:
+            callback(self.results)
+        else:
+            return self.results
+
+    def start(self, callback: Callable = None, reset_results=True) -> Results:
         """
-        Start Manager ant it's Workers
+        Start Manager and it's Workers
         If callback is set, then start crawlers in the Thread and call callback in the end.
         :param bool reset_results: Reset previous results
         :param callable callback: Callable
@@ -97,8 +111,12 @@ class CrawlMp:
         """
         if reset_results:
             self.results.reset()
+        start_method = self._start if self.num_proc > 1 else self._start_sp
+
         if callback is None:
-            return self._start()
+
+            return start_method()
         else:
             assert callable(callback)
-            Thread(target=self._start, args=(callback,)).start()
+            Thread(target=start_method, args=(callback,)).start()
+

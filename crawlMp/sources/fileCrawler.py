@@ -8,9 +8,9 @@ from crawlMp.sources.interfaces.crawler import Crawler
 
 class FileCrawler(Crawler):
 
-    def __init__(self, links: list, max_depth: int = math.inf) -> None:
+    def __init__(self, links: list, max_depth: int = math.inf, *args, **kwargs) -> None:
         self.max_depth = max_depth
-        Crawler.__init__(self, links)
+        Crawler.__init__(self, links, args, kwargs)
 
     def init_entrypoint(self) -> tuple:
         """
@@ -46,9 +46,9 @@ class FileCrawler(Crawler):
 
 class FileSearchCrawler(FileCrawler):
 
-    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf) -> None:
+    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, *args, **kwargs) -> None:
         self.pattern = re.compile(pattern)
-        FileCrawler.__init__(self, links, max_depth)
+        FileCrawler.__init__(self, links, max_depth, args, kwargs)
 
     def is_target(self, item: str) -> bool:
         return self.pattern.search(item) is not None

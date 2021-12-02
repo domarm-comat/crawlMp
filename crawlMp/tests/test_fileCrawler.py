@@ -3,6 +3,7 @@ from copy import copy
 
 import pytest
 
+from crawlMp.sources.crawlMp import CrawlMp
 from crawlMp.sources.fileCrawler import FileCrawler, FileSearchCrawler
 
 
@@ -30,16 +31,12 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
         "fcs-all-two-dir": [387, 29, 1],
     }
 
-    crawl = None
-    for crawl in crawler_class(copy(links), max_depth=max_depth):
-        pass
+    manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1, max_depth=max_depth)
+    results = manager.start()
 
-    assert crawl is not None
-
-    assert crawl.max_depth == max_depth
-    assert len(crawl.results.targets_found) == expected[test_id][0]
-    assert len(crawl.results.links_followed) == expected[test_id][1]
-    assert len(crawl.results.links_failed) == expected[test_id][2]
+    assert len(results.targets_found) == expected[test_id][0]
+    assert len(results.links_followed) == expected[test_id][1]
+    assert len(results.links_failed) == expected[test_id][2]
 
 
 @pytest.mark.parametrize("links", ["", "not_list", "/not/list"])
@@ -52,18 +49,16 @@ def test_fs_crawl_entrypoint_fail(fake_fs, links):
 @pytest.mark.parametrize("links", [["fail"], ["6"], ['/doc/source/af2py/', '/doc/csource/f2py/']])
 def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
     test_id = request.node.callspec.id
-    crawl = None
-    for crawl in FileCrawler(copy(links)):
-        pass
 
-    assert crawl is not None
+    manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1)
+    results = manager.start()
 
-    assert len(crawl.results.targets_found) == 0
-    assert len(crawl.results.links_followed) == 0
+    assert len(results.targets_found) == 0
+    assert len(results.links_followed) == 0
     if test_id == "links2":
-        assert len(crawl.results.links_failed) == 2
+        assert len(results.links_failed) == 2
     else:
-        assert len(crawl.results.links_failed) == 1
+        assert len(results.links_failed) == 1
 
 
 @pytest.mark.parametrize("depth", [1, math.inf, 2, 3], ids=["d0", "d1", "d2", "d3"])
@@ -88,13 +83,9 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
         "r2-d3": (314, 81, 2),
         "r3-d3": (0, 81, 2),
     }
+    manager = CrawlMp(FileSearchCrawler, links=["/"], num_proc=1, pattern=pattern, max_depth=depth)
+    results = manager.start()
 
-    crawl = None
-
-    for crawl in FileSearchCrawler(["/"], pattern=pattern, max_depth=depth):
-        pass
-    assert crawl is not None
-
-    assert len(crawl.results.targets_found) == expected[test_id][0]
-    assert len(crawl.results.links_followed) == expected[test_id][1]
-    assert len(crawl.results.links_failed) == expected[test_id][2]
+    assert len(results.targets_found) == expected[test_id][0]
+    assert len(results.links_followed) == expected[test_id][1]
+    assert len(results.links_failed) == expected[test_id][2]

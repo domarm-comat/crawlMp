@@ -11,7 +11,7 @@ def done_cb(results, done_event):
     done_event.set()
 
 
-@pytest.mark.parametrize("num_proc", [4, 6, 8])
+@pytest.mark.parametrize("num_proc", [1, 2, 4, 6, 8])
 def test_crawlMp_num_proc(fake_fs, num_proc):
     done_event = Event()
     manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
