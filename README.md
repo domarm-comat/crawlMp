@@ -34,7 +34,7 @@ CrawlMp manager does such a task effectively as well.
 `python3 -m pip install crawlMp`
 
 ### Git ###
-`git pull https://github.com/domarm-comat/crawlMp.git`  
+`git clone https://github.com/domarm-comat/crawlMp.git`  
 `cd crawlMp`  
 `python3 setup.py install`  
 
