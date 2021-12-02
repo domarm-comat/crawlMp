@@ -1,4 +1,3 @@
-from multiprocessing.managers import BaseProxy
 from time import time_ns
 
 from crawlMp import start_time
