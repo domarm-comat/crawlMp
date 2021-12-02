@@ -1,7 +1,6 @@
 from multiprocessing import Event, Process, Lock
 from typing import Any, Iterator
 
-from crawlMp import share_manager
 from crawlMp.sources.results import Results
 
 
@@ -19,14 +18,12 @@ def worker_id_gen() -> Iterator:
 class CrawlWorker(Process):
     id_gen = worker_id_gen()
     jobs_acquiring_lock = Lock()
-    targets_found = share_manager.list()
-    links_followed = share_manager.list()
-    links_failed = share_manager.list()
 
-    def __init__(self, crawler_class, sig_worker_idle: Event, jobs_list: list, buffer_size: int = 64, *args: Any,
-                 **kwargs: Any) -> None:
+    def __init__(self, results: Results, crawler_class, sig_worker_idle: Event, jobs_list: list, buffer_size: int = 64,
+                 *args: Any, **kwargs: Any) -> None:
         Process.__init__(self)
         self.worker_id = next(self.id_gen)
+        self.results = results
         self.stop_signal = Event()
         self.wake_signal = Event()
         self.buffer_size = buffer_size
@@ -46,12 +43,10 @@ class CrawlWorker(Process):
         crawler = self.crawler_class(*self.args, **self.kwargs)
 
         def flush_results():
-            self.targets_found += crawler.targets_found
-            self.links_followed += crawler.links_followed
-            self.links_failed += crawler.links_failed
-            crawler.targets_found = []
-            crawler.links_followed = []
-            crawler.links_failed = []
+            self.results.targets_found += crawler.results.targets_found
+            self.results.links_followed += crawler.results.links_followed
+            self.results.links_failed += crawler.results.links_failed
+            crawler.results.reset()
 
         iterations = 0
         if not self.stop_signal.is_set():
@@ -94,12 +89,3 @@ class CrawlWorker(Process):
         :return:
         """
         self.stop_signal.set()
-
-    def get_results(self) -> Results:
-        """
-        Return all results.
-        :return Result: results object
-        """
-        return Results(targets_found=self.targets_found,
-                       links_followed=self.links_followed,
-                       links_failed=self.links_failed)

@@ -36,11 +36,10 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
 
     assert crawl is not None
 
-    out = crawl.get_results()
     assert crawl.max_depth == max_depth
-    assert len(out.targets_found) == expected[test_id][0]
-    assert len(out.links_followed) == expected[test_id][1]
-    assert len(out.links_failed) == expected[test_id][2]
+    assert len(crawl.results.targets_found) == expected[test_id][0]
+    assert len(crawl.results.links_followed) == expected[test_id][1]
+    assert len(crawl.results.links_failed) == expected[test_id][2]
 
 
 @pytest.mark.parametrize("links", ["", "not_list", "/not/list"])
@@ -59,13 +58,12 @@ def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
 
     assert crawl is not None
 
-    out = crawl.get_results()
-    assert len(out.targets_found) == 0
-    assert len(out.links_followed) == 0
+    assert len(crawl.results.targets_found) == 0
+    assert len(crawl.results.links_followed) == 0
     if test_id == "links2":
-        assert len(out.links_failed) == 2
+        assert len(crawl.results.links_failed) == 2
     else:
-        assert len(out.links_failed) == 1
+        assert len(crawl.results.links_failed) == 1
 
 
 @pytest.mark.parametrize("depth", [1, math.inf, 2, 3], ids=["d0", "d1", "d2", "d3"])
@@ -97,7 +95,6 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
         pass
     assert crawl is not None
 
-    out = crawl.get_results()
-    assert len(out.targets_found) == expected[test_id][0]
-    assert len(out.links_followed) == expected[test_id][1]
-    assert len(out.links_failed) == expected[test_id][2]
+    assert len(crawl.results.targets_found) == expected[test_id][0]
+    assert len(crawl.results.links_followed) == expected[test_id][1]
+    assert len(crawl.results.links_failed) == expected[test_id][2]

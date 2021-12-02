@@ -5,6 +5,7 @@ from typing import Any, Optional, Callable
 # Create global Process Manager
 from crawlMp import share_manager
 from crawlMp.sources.crawlWorker import CrawlWorker
+from crawlMp.sources.results import Results
 
 
 class CrawlMp:
@@ -20,6 +21,7 @@ class CrawlMp:
         self.kwargs = kwargs
         self.workers = []
         self.running = False
+        self.results = Results(shared=True)
 
     def _init_workers(self) -> None:
         """
@@ -27,13 +29,8 @@ class CrawlMp:
         Number of workers equals num_proc attribute value.
         :return: None
         """
-        # Reset results
-        CrawlWorker.targets_found[:] = []
-        CrawlWorker.links_followed[:] = []
-        CrawlWorker.links_failed[:] = []
-
         for i in range(self.num_proc):
-            worker = CrawlWorker(self.crawler_class, self.sig_worker_idle, self.jobs_list,
+            worker = CrawlWorker(self.results, self.crawler_class, self.sig_worker_idle, self.jobs_list,
                                  links=None, *self.args, **self.kwargs)
             self.workers.append(worker)
             worker.start()
@@ -51,7 +48,7 @@ class CrawlMp:
     def stop(self) -> None:
         self.running = False
 
-    def _start(self, callback: Callable = None) -> Optional[CrawlWorker]:
+    def _start(self, callback: Callable = None) -> Results:
         self.running = True
         # Spawn and start all workers
         self._init_workers()
@@ -78,28 +75,28 @@ class CrawlMp:
                     self.stop_workers()
                     break
 
-        worker = None
         for worker in self.workers:
             # Wait until all workers are finished
             worker.join()
-
-        output = worker.get_results()
         # Call the Callback if necessary
         if callback is not None:
-            callback(output)
+            callback(self.results)
         else:
-            return output
+            return self.results
 
     def get_results(self):
         return self.workers[0].get_results()
 
-    def start(self, callback: Callable = None) -> Optional[CrawlWorker]:
+    def start(self, callback: Callable = None, reset_results=True) -> Optional[CrawlWorker]:
         """
         Start Manager ant it's Workers
         If callback is set, then start crawlers in the Thread and call callback in the end.
+        :param bool reset_results: Reset previous results
         :param callable callback: Callable
         :return: CrawlWorker or None
         """
+        if reset_results:
+            self.results.reset()
         if callback is None:
             return self._start()
         else:

@@ -12,10 +12,8 @@ class Crawler(ABC):
         self.args = args
         self.kwargs = kwargs
         self.metadata = ()
-        self.targets_found = []
         self.entrypoint = None
-        self.links_followed = []
-        self.links_failed = []
+        self.results = Results()
         self.links = links if links is not None else []
 
     def __iter__(self):
@@ -35,7 +33,7 @@ class Crawler(ABC):
             self.crawl(next_link)
         except CrawlException:
             # If crawl fails for any reason, don't follow that link
-            self.links_failed.append(next_link)
+            self.results.links_failed.append(next_link)
         return self
 
     @abstractmethod
@@ -84,15 +82,6 @@ class Crawler(ABC):
         """
         ...
 
-    def get_results(self) -> Results:
-        """
-        Get Crawler results
-        :return Results: Results object
-        """
-        return Results(targets_found=self.targets_found,
-                       links_followed=self.links_followed,
-                       links_failed=self.links_failed)
-
     def crawl(self, entrypoint: Any) -> None:
         """
         Init entrypoint (next link), extract links and targets, close entrypoint.
@@ -103,7 +92,7 @@ class Crawler(ABC):
             return
         self.entrypoint = entrypoint
         self.metadata = self.init_entrypoint()
-        self.links_followed.append(entrypoint)
-        self.targets_found += self.extract_targets()
+        self.results.links_followed.append(entrypoint)
+        self.results.targets_found += self.extract_targets()
         self.links += self.extract_links()
         self.close_entrypoint()

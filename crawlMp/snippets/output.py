@@ -13,10 +13,9 @@ def print_summary(results: Results = None) -> None:
     """
     if results is not None:
         print(f"Crawled in: {(time_ns() - start_time) * 1e-9} s")
-        for key in results.fields:
-            value = results.__getattribute__(key)
-            if isinstance(value, (list, tuple, BaseProxy)):
-                print(f"Number of {key}: {len(value)}")
+        print(f"Number of found targets: {len(results.targets_found)}")
+        print(f"Number of followed links: {len(results.links_followed)}")
+        print(f"Number of failed links: {len(results.links_failed)}")
     else:
         print("No results...")
 

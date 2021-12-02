@@ -27,10 +27,11 @@ def on_done(crawler_results: Results) -> None:
 
 
 if args.processes == 1:
-    results = None
-    for results in FileSearchCrawler(args.links, args.search):
+    crawl = None
+    for crawl in FileSearchCrawler(args.links, args.search):
         pass
-    on_done(results.get_results())
+    results = crawl.results if crawl is not None else None
+    on_done(results)
 else:
     manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes,
                       buffer_size=args.buffer_size, pattern=args.search)

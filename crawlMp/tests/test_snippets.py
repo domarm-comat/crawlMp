@@ -15,12 +15,11 @@ def test_print_summary(fake_fs, links, capsys):
 
     assert crawl is not None
 
-    out = crawl.get_results()
-    print_summary(out)
+    print_summary(crawl.results)
     captured = capsys.readouterr()
 
     expected_output = re.compile(
-        "Crawled in: (.*) s\nNumber of targets_found: 550\nNumber of links_followed: 41\nNumber of links_failed: 1\n")
+        "Crawled in: (.*) s\nNumber of found targets: 550\nNumber of followed links: 41\nNumber of failed links: 1\n")
     assert re.match(expected_output, captured.out) is not None
 
 
@@ -40,8 +39,7 @@ def test_print_list(fake_fs, links, capsys):
 
     assert crawl is not None
 
-    out = crawl.get_results()
-    print_list(out)
+    print_list(crawl.results)
     captured = capsys.readouterr()
 
     expected_output = """/pyproject.toml
