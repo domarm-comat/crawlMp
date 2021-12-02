@@ -48,8 +48,8 @@ CrawlMp manager does such a task effectively as well.
   * `search_fs_mp \.zip$`
 * Get all .zip files in different directories
   * `search_fs_mp \.zip$ -l /home /usr/share`
-* search_fs_mp \.zip$ -l /home /usr/share
-  * `search_fs_mp \.zip$ -l /home /usr/share`
+* Show search summary
+  * `search_fs_mp \.zip$ -l /home /usr/share -o Summary`
 
 ### Python code (blocking) ###
 
