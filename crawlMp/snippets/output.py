@@ -21,7 +21,7 @@ def print_summary(results: Results = None) -> None:
 
 def print_list(results: Results = None) -> None:
     """
-    Print every target result in new line.
+    Print every hit on a new line.
     Suitable for bash output.
     :param results:
     :return: None

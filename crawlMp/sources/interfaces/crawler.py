@@ -46,9 +46,9 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def extract_targets(self) -> list:
+    def extract_hits(self) -> list:
         """
-        Extract all targets from current entrypoint / resource.
+        Extract all hits from current entrypoint / resource.
         This method must be reimplemented.
         :return:
         """
@@ -64,9 +64,9 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def is_target(self, item: Any) -> bool:
+    def is_hit(self, item: Any) -> bool:
         """
-        Decide if input item is target or not.
+        Decide if input item is hits or not.
         This method must be reimplemented.
         :param Any item: Input item
         :return bool: True if item is Target
@@ -84,7 +84,7 @@ class Crawler(ABC):
 
     def crawl(self, entrypoint: Any) -> None:
         """
-        Init entrypoint (next link), extract links and targets, close entrypoint.
+        Init entrypoint (next link), extract links and hits, close entrypoint.
         :param Any entrypoint: Address of entrypoint / resource
         :return: None
         """
@@ -93,6 +93,6 @@ class Crawler(ABC):
         self.entrypoint = entrypoint
         self.metadata = self.init_entrypoint()
         self.results.links_followed.append(entrypoint)
-        self.results.hits += self.extract_targets()
+        self.results.hits += self.extract_hits()
         self.links += self.extract_links()
         self.close_entrypoint()

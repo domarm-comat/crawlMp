@@ -25,9 +25,9 @@ class FileCrawler(Crawler):
             # If for any reason walk can't be finished raise an error
             raise CrawlException("Entrypoint could not be accessed!")
 
-    def extract_targets(self) -> list:
+    def extract_hits(self) -> list:
         root, dirs, files = self.metadata
-        return [os.path.join(root, filename) for filename in filter(self.is_target, files)]
+        return [os.path.join(root, filename) for filename in filter(self.is_hit, files)]
 
     def extract_links(self) -> list:
         root, dirs, files = self.metadata
@@ -37,7 +37,7 @@ class FileCrawler(Crawler):
         else:
             return []
 
-    def is_target(self, item: str) -> bool:
+    def is_hit(self, item: str) -> bool:
         return True
 
     def close_entrypoint(self) -> None:
@@ -50,5 +50,5 @@ class FileSearchCrawler(FileCrawler):
         self.pattern = re.compile(pattern)
         FileCrawler.__init__(self, links, max_depth, args, kwargs)
 
-    def is_target(self, item: str) -> bool:
+    def is_hit(self, item: str) -> bool:
         return self.pattern.search(item) is not None
