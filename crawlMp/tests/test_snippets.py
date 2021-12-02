@@ -1,5 +1,6 @@
 import re
 from copy import copy
+
 import pytest
 
 from crawlMp.snippets.output import print_summary, print_list

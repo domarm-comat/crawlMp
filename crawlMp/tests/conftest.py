@@ -1,8 +1,6 @@
 import os.path
 
 import pytest
-import pyfakefs
-from pyfakefs.fake_filesystem import is_root
 
 
 @pytest.fixture(scope="session")
