@@ -36,13 +36,17 @@ class CrawlWorker(Process):
     def run(self) -> None:
         """
         Worker body
-        Create Crawler object and crawl through.
+        Initiate Crawler and crawl through
         :return: None
         """
         # Initiate Crawler object for current Worker
         crawler = self.crawler_class(*self.args, **self.kwargs)
 
-        def flush_results():
+        def flush_results(crawler) -> None:
+            """
+            Flush crawler results into shared worker results.
+            :return: None
+            """
             self.results.targets_found += crawler.results.targets_found
             self.results.links_followed += crawler.results.links_followed
             self.results.links_failed += crawler.results.links_failed
@@ -67,7 +71,7 @@ class CrawlWorker(Process):
                             del crawler.links[self.buffer_size:]
                     iterations += 1
                     if iterations % self.buffer_size == 0:
-                        flush_results()
+                        flush_results(crawler)
                 elif not self.jobs_list:
                     # job_queue is empty
                     # set wake_signal to low
@@ -81,7 +85,7 @@ class CrawlWorker(Process):
                         crawler.links += self.jobs_list[:self.buffer_size]
                         # Remove fetched links from jobs_list
                         del self.jobs_list[:self.buffer_size]
-            flush_results()
+            flush_results(crawler)
 
     def stop(self) -> None:
         """
