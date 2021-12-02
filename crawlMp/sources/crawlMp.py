@@ -119,7 +119,7 @@ class CrawlMp:
         else:
             return self.results
 
-    def start(self, callback: Callable = None, reset_results=True) -> Results:
+    def start(self, callback: Callable = None, reset_results: bool = True) -> Results:
         """
         Start Manager and it's Workers
         If callback is set, then start crawlers in the Thread and call callback in the end.
