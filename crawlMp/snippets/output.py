@@ -27,4 +27,5 @@ def print_list(results: Results = None) -> None:
     :param results:
     :return: None
     """
-    print(*results.targets_found, sep="\n")
+    if len(results.targets_found) > 0:
+        print(*results.targets_found, sep="\n")
