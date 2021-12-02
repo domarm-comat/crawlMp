@@ -43,7 +43,6 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
 def test_fs_crawl_entrypoint_fail(fake_fs, links):
     with pytest.raises(AssertionError):
         FileCrawler(links)
-    fake_fs.pause()
 
 
 @pytest.mark.parametrize("links", [["fail"], ["6"], ['/doc/source/af2py/', '/doc/csource/f2py/']])

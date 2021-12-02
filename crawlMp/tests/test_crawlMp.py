@@ -48,3 +48,9 @@ def test_crawlMp_stop(fake_fs):
 
     done_event.wait(timeout=5)
     assert done_event.is_set()
+
+
+@pytest.mark.parametrize("num_proc", [0, -1])
+def test_crawlMp_numproc_fail(fake_fs, num_proc):
+    with pytest.raises(AssertionError):
+        CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)

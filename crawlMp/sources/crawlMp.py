@@ -51,9 +51,18 @@ class CrawlMp:
             worker.wake_signal.set()
 
     def stop(self) -> None:
+        """
+        Stop crawling
+        :return: None
+        """
         self.running = False
 
-    def _start(self, callback: Callable = None) -> Results:
+    def _start_mp(self, callback: Callable = None) -> Results:
+        """
+        Start crawling using multiple workers.
+        :param Callable callback: callback function
+        :return Results: results
+        """
         self.running = True
         # Spawn and start all workers
         self._init_workers()
@@ -90,8 +99,13 @@ class CrawlMp:
             return self.results
 
     def _start_sp(self, callback: Callable = None) -> Results:
+        """
+        Start crawling in single process.
+        Useful for small link sets when spawning processes would lead to overhead.
+        :param Callable callback: callback function
+        :return Results: results
+        """
         self.running = True
-        crawl = None
 
         def flush_results(crawler) -> None:
             """
@@ -104,6 +118,7 @@ class CrawlMp:
             crawler.results.reset()
 
         iterations = 0
+        crawl = None
         for crawl in self.crawler_class(self.jobs_list[:], *self.args, **self.kwargs):
             if not self.running:
                 break
@@ -112,8 +127,10 @@ class CrawlMp:
                 flush_results(crawl)
 
         if crawl is not None:
+            # Flush rest of the results
             flush_results(crawl)
 
+        # Call the Callback if necessary
         if callback is not None:
             callback(self.results)
         else:
@@ -129,7 +146,7 @@ class CrawlMp:
         """
         if reset_results:
             self.results.reset()
-        start_method = self._start if self.num_proc > 1 else self._start_sp
+        start_method = self._start_mp if self.num_proc > 1 else self._start_sp
 
         if callback is None:
 
