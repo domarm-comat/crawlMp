@@ -2,6 +2,7 @@
 import argparse
 import multiprocessing
 import os
+import signal
 import sys
 
 from crawlMp.constants import *
@@ -50,5 +51,7 @@ def on_done(crawler_results: Results) -> None:
             print_list(crawler_results)
 
 
-CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
-        pattern=args.pattern).start(on_done)
+manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
+                  pattern=args.pattern)
+signal.signal(signal.SIGINT, lambda *args, **kwargs: manager.stop())
+manager.start(on_done)

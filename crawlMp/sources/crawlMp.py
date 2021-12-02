@@ -38,6 +38,9 @@ class CrawlMp:
             worker.start()
             worker.wake_signal.set()
 
+            if not self.running:
+                return
+
     def stop_workers(self) -> None:
         """
         Stop all workers
