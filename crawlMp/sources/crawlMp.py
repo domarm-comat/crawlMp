@@ -98,7 +98,7 @@ class CrawlMp:
             Flush crawler results into shared worker results.
             :return: None
             """
-            self.results.targets_found += crawler.results.targets_found
+            self.results.hits += crawler.results.hits
             self.results.links_followed += crawler.results.links_followed
             self.results.links_failed += crawler.results.links_failed
             crawler.results.reset()

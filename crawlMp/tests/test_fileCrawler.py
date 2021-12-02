@@ -34,7 +34,7 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
     manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1, max_depth=max_depth)
     results = manager.start()
 
-    assert len(results.targets_found) == expected[test_id][0]
+    assert len(results.hits) == expected[test_id][0]
     assert len(results.links_followed) == expected[test_id][1]
     assert len(results.links_failed) == expected[test_id][2]
 
@@ -53,7 +53,7 @@ def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
     manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1)
     results = manager.start()
 
-    assert len(results.targets_found) == 0
+    assert len(results.hits) == 0
     assert len(results.links_followed) == 0
     if test_id == "links2":
         assert len(results.links_failed) == 2
@@ -86,6 +86,6 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
     manager = CrawlMp(FileSearchCrawler, links=["/"], num_proc=1, pattern=pattern, max_depth=depth)
     results = manager.start()
 
-    assert len(results.targets_found) == expected[test_id][0]
+    assert len(results.hits) == expected[test_id][0]
     assert len(results.links_followed) == expected[test_id][1]
     assert len(results.links_failed) == expected[test_id][2]

@@ -19,7 +19,7 @@ def test_print_summary(fake_fs, links, capsys):
     captured = capsys.readouterr()
 
     expected_output = re.compile(
-        "Crawled in: (.*) s\nNumber of found targets: 550\nNumber of followed links: 41\nNumber of failed links: 1\n")
+        "Crawled in: (.*) s\nNumber of hits: 550\nNumber of followed links: 41\nNumber of failed links: 1\n")
     assert re.match(expected_output, captured.out) is not None
 
 

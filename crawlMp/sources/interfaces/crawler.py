@@ -93,6 +93,6 @@ class Crawler(ABC):
         self.entrypoint = entrypoint
         self.metadata = self.init_entrypoint()
         self.results.links_followed.append(entrypoint)
-        self.results.targets_found += self.extract_targets()
+        self.results.hits += self.extract_targets()
         self.links += self.extract_links()
         self.close_entrypoint()

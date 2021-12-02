@@ -20,7 +20,7 @@ def test_crawlMp_num_proc(fake_fs, num_proc):
     done_event.wait()
     assert done_event.is_set()
 
-    assert len(manager.results.targets_found) == 1811
+    assert len(manager.results.hits) == 1811
     assert len(manager.results.links_followed) == 148
     assert len(manager.results.links_failed) == 2
 
@@ -33,7 +33,7 @@ def test_crawlMp_callback(fake_fs):
     done_event.wait(timeout=5)
     assert done_event.is_set()
 
-    assert len(manager.results.targets_found) == 1811
+    assert len(manager.results.hits) == 1811
     assert len(manager.results.links_followed) == 148
     assert len(manager.results.links_failed) == 2
 

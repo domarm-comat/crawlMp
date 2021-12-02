@@ -12,7 +12,7 @@ def print_summary(results: Results = None) -> None:
     """
     if results is not None:
         print(f"Crawled in: {(time_ns() - start_time) * 1e-9} s")
-        print(f"Number of found targets: {len(results.targets_found)}")
+        print(f"Number of hits: {len(results.hits)}")
         print(f"Number of followed links: {len(results.links_followed)}")
         print(f"Number of failed links: {len(results.links_failed)}")
     else:
@@ -26,5 +26,5 @@ def print_list(results: Results = None) -> None:
     :param results:
     :return: None
     """
-    if len(results.targets_found) > 0:
-        print(*results.targets_found, sep="\n")
+    if len(results.hits) > 0:
+        print(*results.hits, sep="\n")
