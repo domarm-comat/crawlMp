@@ -1,21 +1,19 @@
 # Overview #
 
-Main aim of this project is to provide simple tool for single or multiprocess resource crawling.  
+Main aim of this project is to provide simple tool for multiprocess crawling.  
 It can be used either as a tool for python project or as a command line tool.  
-Project comes with unit tests. 
 
 # Concept #
 
-This package was written to serve general purpose of crawling various resources.  
+This package was written to serve general purpose of crawling various resources. 
 To achieve that, Crawler interface needs to be adopted.  
 Just by implementing this interface, other Crawlers can be created and used with crawlMp manager.  
-To use Crawler for resource crawling, it must be used in CrawlWorker.  
-Crawled resource must be parallelized.  
+Resource Crawler is then used with CrawlWorker.   
 Every crawler first enters entry point (link) and filter for hits and other links.  
 Results of crawling are then stored in shared list.
 Other workers can pick up and follow link from shared list.
 For some cases, using only one single process is more effective than spawning multiple processes.  
-CrawlMp manager does such a task effectively as well.  
+CrawlMp does it effectively as well.  
 
 # What is in the package #
 

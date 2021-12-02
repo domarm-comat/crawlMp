@@ -9,7 +9,7 @@ setuptools.setup(
     license='MIT',
     author="Martin Domaracký",
     author_email="domarm@comat.sk",
-    description="Multi Process Crawl toolset",
+    description="Multiprocess Crawler",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/domarm-comat/crawlMp",
