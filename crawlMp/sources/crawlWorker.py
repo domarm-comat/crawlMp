@@ -19,7 +19,7 @@ class CrawlWorker(Process):
     id_gen = worker_id_gen()
     jobs_acquiring_lock = Lock()
 
-    def __init__(self, results: Results, crawler_class, sig_worker_idle: Event, jobs_list: list, buffer_size: int = 64,
+    def __init__(self, results: Results, crawler_class, sig_worker_idle: Event, jobs_list: list, buffer_size: int = 96,
                  *args: Any, **kwargs: Any) -> None:
         Process.__init__(self)
         self.worker_id = next(self.id_gen)

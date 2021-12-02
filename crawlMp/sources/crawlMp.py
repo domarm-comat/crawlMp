@@ -1,6 +1,6 @@
 from multiprocessing import Event, Lock
 from threading import Thread
-from typing import Any, Optional, Callable
+from typing import Any, Callable
 
 # Create global Process Manager
 from crawlMp import share_manager
@@ -10,7 +10,8 @@ from crawlMp.sources.results import Results
 
 class CrawlMp:
 
-    def __init__(self, crawler_class, links: list, num_proc: int = 4, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, crawler_class, links: list, num_proc: int = 4, buffer_size: int = 96, *args: Any,
+                 **kwargs: Any) -> None:
         assert num_proc > 0
         self.num_proc = num_proc
         self.crawler_class = crawler_class
@@ -21,6 +22,7 @@ class CrawlMp:
         self.kwargs = kwargs
         self.workers = []
         self.running = False
+        self.buffer_size = buffer_size
         self.results = Results(shared=True)
 
     def _init_workers(self) -> None:
@@ -87,14 +89,27 @@ class CrawlMp:
     def _start_sp(self, callback: Callable = None) -> Results:
         self.running = True
         crawl = None
+
+        def flush_results(crawler) -> None:
+            """
+            Flush crawler results into shared worker results.
+            :return: None
+            """
+            self.results.targets_found += crawler.results.targets_found
+            self.results.links_followed += crawler.results.links_followed
+            self.results.links_failed += crawler.results.links_failed
+            crawler.results.reset()
+
+        iterations = 0
         for crawl in self.crawler_class(self.jobs_list[:], *self.args, **self.kwargs):
             if not self.running:
                 break
+            iterations += 1
+            if iterations % self.buffer_size == 0:
+                flush_results(crawl)
 
         if crawl is not None:
-            self.results.targets_found += crawl.results.targets_found
-            self.results.links_followed += crawl.results.links_followed
-            self.results.links_failed += crawl.results.links_failed
+            flush_results(crawl)
 
         if callback is not None:
             callback(self.results)
@@ -119,4 +134,3 @@ class CrawlMp:
         else:
             assert callable(callback)
             Thread(target=start_method, args=(callback,)).start()
-

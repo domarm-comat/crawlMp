@@ -14,7 +14,7 @@ parser.add_argument("-o", "--output", default=[OUTPUT_LIST], type=str, nargs="+"
                     help=f"Entry points to start search")
 parser.add_argument("-np", "--processes", default=8, type=int, help="Number of processes used, minimum is 1")
 parser.add_argument("-s", "--search", default=".", type=str, help="RegExp filename pattern to search for")
-parser.add_argument("-bs", "--buffer_size", default=64, type=int, help="Buffer links size, only used if processes > 1")
+parser.add_argument("-bs", "--buffer_size", default=96, type=int, help="Buffer links size, only used if processes > 1")
 args = parser.parse_args()
 
 
