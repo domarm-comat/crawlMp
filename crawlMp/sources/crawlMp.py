@@ -136,6 +136,14 @@ class CrawlMp:
         else:
             return self.results
 
+    def append_links(self, links: list) -> None:
+        """
+        Add links, thread safe.
+        :param list links: New links to crawl
+        :return: None
+        """
+        self.jobs_list += links
+
     def start(self, callback: Callable = None, reset_results: bool = True) -> Results:
         """
         Start Manager and it's Workers
