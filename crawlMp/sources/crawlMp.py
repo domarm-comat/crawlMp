@@ -1,4 +1,4 @@
-from multiprocessing import Event, Lock
+from multiprocessing import Lock, Event
 from threading import Thread
 from typing import Any, Callable
 
@@ -16,13 +16,13 @@ class CrawlMp:
         self.num_proc = num_proc
         self.crawler_class = crawler_class
         self.jobs_list = share_manager.list(links)
-        self.sig_worker_idle = Event()
         self.jobs_acquiring_lock = Lock()
         self.args = args
         self.kwargs = kwargs
         self.workers = []
         self.running = False
         self.buffer_size = buffer_size
+        self.sig_resumed = Event()
         self.results = Results(shared=True)
 
     def _init_workers(self) -> None:
@@ -32,8 +32,8 @@ class CrawlMp:
         :return: None
         """
         for i in range(self.num_proc):
-            worker = CrawlWorker(self.results, self.crawler_class, self.sig_worker_idle, self.jobs_list,
-                                 links=None, *self.args, **self.kwargs)
+            worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, links=None, *self.args,
+                                 **self.kwargs)
             self.workers.append(worker)
             worker.start()
             worker.wake_signal.set()
@@ -56,6 +56,8 @@ class CrawlMp:
         :return: None
         """
         self.running = False
+        if self.is_paused():
+            self.resume()
 
     def _start_mp(self, callback: Callable = None) -> Results:
         """
@@ -69,7 +71,7 @@ class CrawlMp:
         while True:
             idle_workers = 0
             try:
-                self.sig_worker_idle.wait(timeout=1)
+                CrawlWorker.sig_idle.wait(timeout=1)
                 # If one of the Workers is Idle
                 # Count number of Idle workers
                 for worker in self.workers:
@@ -79,7 +81,7 @@ class CrawlMp:
                         worker.wake_signal.set()
                         idle_workers += 1
                 # Clear worker idle signal
-                self.sig_worker_idle.clear()
+                CrawlWorker.sig_idle.clear()
             except RuntimeError:
                 continue
             finally:
@@ -88,6 +90,8 @@ class CrawlMp:
                     # All jobs are finished, close all workers
                     self.stop_workers()
                     break
+                elif self.is_paused():
+                    self.sig_resumed.wait()
 
         for worker in self.workers:
             # Wait until all workers are finished
@@ -157,8 +161,31 @@ class CrawlMp:
         start_method = self._start_mp if self.num_proc > 1 else self._start_sp
 
         if callback is None:
-
             return start_method()
         else:
             assert callable(callback)
             Thread(target=start_method, args=(callback,)).start()
+
+    def pause(self) -> None:
+        """
+        Pause crawling until resume
+        :return: None
+        """
+        self.sig_resumed.clear()
+        CrawlWorker.sig_pause.set()
+
+    def resume(self) -> None:
+        """
+        Resume crawling if paused
+        :return: None
+        """
+        CrawlWorker.sig_pause.clear()
+        self.sig_resumed.set()
+
+    @staticmethod
+    def is_paused() -> bool:
+        """
+        Check id crawling is paused.
+        :return bool: pause status
+        """
+        return CrawlWorker.sig_pause.is_set()
