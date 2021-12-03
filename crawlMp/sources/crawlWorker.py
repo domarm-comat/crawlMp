@@ -19,8 +19,8 @@ class CrawlWorker(Process):
     id_gen = worker_id_gen()
     jobs_acquiring_lock = Lock()
 
-    def __init__(self, results: Results, crawler_class, sig_worker_idle: Event, jobs_list: list, buffer_size: int = 96,
-                 *args: Any, **kwargs: Any) -> None:
+    def __init__(self, results: Results, crawler_class, jobs_list: list, sig_pause: Event, sig_idle: Event,
+                 buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
         Process.__init__(self)
         self.worker_id = next(self.id_gen)
         self.results = results
@@ -28,8 +28,9 @@ class CrawlWorker(Process):
         self.wake_signal = Event()
         self.buffer_size = buffer_size
         self.crawler_class = crawler_class
-        self.sig_worker_idle = sig_worker_idle
         self.jobs_list = jobs_list
+        self.sig_pause = sig_pause
+        self.sig_idle = sig_idle
         self.args = args
         self.kwargs = kwargs
 
@@ -58,10 +59,13 @@ class CrawlWorker(Process):
             if self.stop_signal.is_set():
                 # Check if Worker should stop
                 break
+            elif self.sig_pause.is_set():
+                self.wake_signal.clear()
+                self.sig_idle.set()
             elif crawler.links:
                 # Crawl next link
                 next(crawler)
-                if self.sig_worker_idle.is_set() and len(crawler.links) > self.buffer_size:
+                if self.sig_idle.is_set() and len(crawler.links) > self.buffer_size:
                     # One of the workers is IDLE and Worker has more links than buffer size
                     # Keep links of buffer size
                     self.jobs_list += crawler.links[self.buffer_size:]
@@ -82,7 +86,7 @@ class CrawlWorker(Process):
                 # set wake_signal to low
                 self.wake_signal.clear()
                 # set worker_idle_signal to high
-                self.sig_worker_idle.set()
+                self.sig_idle.set()
 
         flush_results(crawler)
 
