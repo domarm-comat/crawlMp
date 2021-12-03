@@ -47,7 +47,7 @@ CrawlMp does it effectively as well.
 * Get all .zip files in different directories  
   `search_fs_mp \.zip$ -l /home /usr/share`
 * Show search summary  
-  `search_fs_mp \.zip$ -l /home /usr/share -o Summary`
+  `search_fs_mp \.zip$ -l /home /usr/share -os`
 
 ### Python code (blocking) ###
 

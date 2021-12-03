@@ -1,2 +1,2 @@
-OUTPUT_SUMMARY = "Summary"
-OUTPUT_LIST = "List"
+OUTPUT_SUMMARY = "s"
+OUTPUT_LIST = "l"
