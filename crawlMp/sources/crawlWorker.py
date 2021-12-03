@@ -70,19 +70,20 @@ class CrawlWorker(Process):
                 iterations += 1
                 if iterations % self.buffer_size == 0:
                     flush_results(crawler)
-            elif not self.jobs_list:
+            elif self.jobs_list and self.jobs_acquiring_lock.acquire(block=True, timeout=0):
+                # Crawler has no links to follow, but there are some links already in job_queue
+                # Fill crawler.links from jobs_list of buffer_size
+                crawler.links += self.jobs_list[:self.buffer_size]
+                # Remove fetched links from jobs_list
+                del self.jobs_list[:self.buffer_size]
+                self.jobs_acquiring_lock.release()
+            else:
                 # job_queue is empty
                 # set wake_signal to low
                 self.wake_signal.clear()
                 # set worker_idle_signal to high
                 self.sig_worker_idle.set()
-            else:
-                # Crawler has no links to follow, but there are some links already in job_queue
-                with self.jobs_acquiring_lock:
-                    # Fill crawler.links from jobs_list of buffer_size
-                    crawler.links += self.jobs_list[:self.buffer_size]
-                    # Remove fetched links from jobs_list
-                    del self.jobs_list[:self.buffer_size]
+
         flush_results(crawler)
 
     def stop(self) -> None:
