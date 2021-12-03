@@ -63,11 +63,10 @@ class CrawlWorker(Process):
                 next(crawler)
                 if self.sig_worker_idle.is_set() and len(crawler.links) > self.buffer_size:
                     # One of the workers is IDLE and Worker has more links than buffer size
-                    with self.jobs_acquiring_lock:
-                        # Keep links of buffer size
-                        self.jobs_list += crawler.links[self.buffer_size:]
-                        # Remove those links from crawler links
-                        del crawler.links[self.buffer_size:]
+                    # Keep links of buffer size
+                    self.jobs_list += crawler.links[self.buffer_size:]
+                    # Remove those links from crawler links
+                    del crawler.links[self.buffer_size:]
                 iterations += 1
                 if iterations % self.buffer_size == 0:
                     flush_results(crawler)
