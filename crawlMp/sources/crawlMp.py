@@ -23,6 +23,8 @@ class CrawlMp:
         self.running = False
         self.buffer_size = buffer_size
         self.sig_resumed = Event()
+        self.sig_paused = Event()
+        self.sig_worker_idle = Event()
         self.results = Results(shared=True)
 
     def _init_workers(self) -> None:
@@ -32,8 +34,8 @@ class CrawlMp:
         :return: None
         """
         for i in range(self.num_proc):
-            worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, links=None, *self.args,
-                                 **self.kwargs)
+            worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, self.sig_paused,
+                                 self.sig_worker_idle, links=None, *self.args, **self.kwargs)
             self.workers.append(worker)
             worker.start()
             worker.wake_signal.set()
@@ -71,7 +73,7 @@ class CrawlMp:
         while True:
             idle_workers = 0
             try:
-                CrawlWorker.sig_idle.wait(timeout=1)
+                self.sig_worker_idle.wait(timeout=1)
                 # If one of the Workers is Idle
                 # Count number of Idle workers
                 for worker in self.workers:
@@ -81,7 +83,7 @@ class CrawlMp:
                         worker.wake_signal.set()
                         idle_workers += 1
                 # Clear worker idle signal
-                CrawlWorker.sig_idle.clear()
+                self.sig_worker_idle.clear()
             except RuntimeError:
                 continue
             finally:
@@ -172,20 +174,19 @@ class CrawlMp:
         :return: None
         """
         self.sig_resumed.clear()
-        CrawlWorker.sig_pause.set()
+        self.sig_paused.set()
 
     def resume(self) -> None:
         """
         Resume crawling if paused
         :return: None
         """
-        CrawlWorker.sig_pause.clear()
+        self.sig_paused.clear()
         self.sig_resumed.set()
 
-    @staticmethod
-    def is_paused() -> bool:
+    def is_paused(self) -> bool:
         """
         Check id crawling is paused.
         :return bool: pause status
         """
-        return CrawlWorker.sig_pause.is_set()
+        return self.sig_paused.is_set()

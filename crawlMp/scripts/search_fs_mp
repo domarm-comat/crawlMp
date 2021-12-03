@@ -51,7 +51,7 @@ def on_done(crawler_results: Results) -> None:
             print_list(crawler_results)
 
 
-manager = CrawlMp(FileSearchCrawler, links=args.links * 8, num_proc=args.processes, buffer_size=args.buffer_size,
+manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
                   pattern=args.pattern)
 signal.signal(signal.SIGINT, lambda *args, **kwargs: manager.stop())
 manager.start(on_done)

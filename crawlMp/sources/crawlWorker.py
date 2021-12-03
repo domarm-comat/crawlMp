@@ -18,11 +18,9 @@ def worker_id_gen() -> Iterator:
 class CrawlWorker(Process):
     id_gen = worker_id_gen()
     jobs_acquiring_lock = Lock()
-    sig_pause = Event()
-    sig_idle = Event()
 
-    def __init__(self, results: Results, crawler_class, jobs_list: list, buffer_size: int = 96, *args: Any,
-                 **kwargs: Any) -> None:
+    def __init__(self, results: Results, crawler_class, jobs_list: list, sig_pause: Event, sig_idle: Event,
+                 buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
         Process.__init__(self)
         self.worker_id = next(self.id_gen)
         self.results = results
@@ -31,6 +29,8 @@ class CrawlWorker(Process):
         self.buffer_size = buffer_size
         self.crawler_class = crawler_class
         self.jobs_list = jobs_list
+        self.sig_pause = sig_pause
+        self.sig_idle = sig_idle
         self.args = args
         self.kwargs = kwargs
 
@@ -60,7 +60,6 @@ class CrawlWorker(Process):
                 # Check if Worker should stop
                 break
             elif self.sig_pause.is_set():
-                print("pausing")
                 self.wake_signal.clear()
                 self.sig_idle.set()
             elif crawler.links:
