@@ -61,7 +61,7 @@ class CrawlWorker(Process):
             elif crawler.links:
                 # Crawl next link
                 next(crawler)
-                if self.sig_worker_idle.is_set() and len(crawler.links) > self.buffer_size:
+                if len(crawler.links) > self.buffer_size:
                     # One of the workers is IDLE and Worker has more links than buffer size
                     # Keep links of buffer size
                     self.jobs_list += crawler.links[self.buffer_size:]
