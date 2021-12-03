@@ -87,13 +87,13 @@ class CrawlMp:
             except RuntimeError:
                 continue
             finally:
-                if not self.running or (idle_workers == self.num_proc and len(self.jobs_list) == 0):
+                if self.is_paused():
+                    self.sig_resumed.wait()
+                elif not self.running or (idle_workers == self.num_proc and len(self.jobs_list) == 0):
                     # All workers are idle and job_list is empty
                     # All jobs are finished, close all workers
                     self.stop_workers()
                     break
-                elif self.is_paused():
-                    self.sig_resumed.wait()
 
         for worker in self.workers:
             # Wait until all workers are finished
@@ -183,6 +183,8 @@ class CrawlMp:
         """
         self.sig_paused.clear()
         self.sig_resumed.set()
+        for worker in self.workers:
+            worker.wake_signal.set()
 
     def is_paused(self) -> bool:
         """

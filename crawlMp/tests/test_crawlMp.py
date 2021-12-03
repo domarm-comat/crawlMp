@@ -58,7 +58,7 @@ def test_crawlMp_numproc_fail(fake_fs, num_proc):
 
 def test_crawlMp_append_link(fake_fs):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"])
+    manager = CrawlMp(FileCrawler, links=["/"] * 20)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     append_link_times = 5
@@ -68,18 +68,19 @@ def test_crawlMp_append_link(fake_fs):
     done_event.wait()
     assert done_event.is_set()
 
-    assert len(manager.results.hits) == 1811 * (append_link_times + 1)
-    assert len(manager.results.links_followed) == 148 * (append_link_times + 1)
-    assert len(manager.results.links_failed) == 2 * (append_link_times + 1)
+    assert len(manager.results.hits) == 1811 * (append_link_times + 20)
+    assert len(manager.results.links_followed) == 148 * (append_link_times + 20)
+    assert len(manager.results.links_failed) == 2 * (append_link_times + 20)
 
-
-def test_crawlMp_pause_resume(fake_fs):
+@pytest.mark.parametrize('execution_number', range(5))
+@pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
+def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
     done_event = Event()
-    multiplier = 10
+    multiplier = 30
     manager = CrawlMp(FileCrawler, links=["/"] * multiplier)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
-    sleep(0.1)
+    sleep(pause_offset)
     manager.pause()
     sleep(1.5)
     manager.resume()
@@ -96,12 +97,14 @@ def test_crawlMp_pause_resume(fake_fs):
     assert len(manager.results.links_failed) == 2 * multiplier
 
 
-def test_crawlMp_pause_resume_stop(fake_fs):
+@pytest.mark.parametrize('execution_number', range(5))
+@pytest.mark.parametrize("pause_offset", [0, 0.1, 1])
+def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number):
     done_event = Event()
     manager = CrawlMp(FileCrawler, links=["/"] * 100)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
-    sleep(0.1)
+    sleep(pause_offset)
     manager.pause()
     sleep(1.5)
     manager.resume()
