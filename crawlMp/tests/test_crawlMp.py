@@ -54,3 +54,20 @@ def test_crawlMp_stop(fake_fs):
 def test_crawlMp_numproc_fail(fake_fs, num_proc):
     with pytest.raises(AssertionError):
         CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
+
+
+def test_crawlMp_append_link(fake_fs):
+    done_event = Event()
+    manager = CrawlMp(FileCrawler, links=["/"])
+    manager.start(callback=lambda results: done_cb(results, done_event))
+
+    append_link_times = 5
+    for i in range(append_link_times):
+        manager.append_links(["/"])
+
+    done_event.wait()
+    assert done_event.is_set()
+
+    assert len(manager.results.hits) == 1811 * (append_link_times + 1)
+    assert len(manager.results.links_followed) == 148 * (append_link_times + 1)
+    assert len(manager.results.links_failed) == 2 * (append_link_times + 1)
