@@ -3,8 +3,8 @@ from copy import copy
 
 import pytest
 
-from crawlMp.sources.crawlMp import CrawlMp
-from crawlMp.sources.fileCrawler import FileCrawler, FileSearchCrawler
+from crawlMp.crawlMp import CrawlMp
+from crawlMp.crawlers.fileCrawler import FileCrawler, FileSearchCrawler
 
 
 @pytest.mark.parametrize("links", [["/"], ["/doc/source", "/numpy/doc"]], ids=["all", "two-dir"])

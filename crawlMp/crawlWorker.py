@@ -1,7 +1,7 @@
 from multiprocessing import Event, Process, Lock
 from typing import Any, Iterator
 
-from crawlMp.sources.results import Results
+from crawlMp.results import Results
 
 
 def worker_id_gen() -> Iterator:

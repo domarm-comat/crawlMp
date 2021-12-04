@@ -1,11 +1,12 @@
 from multiprocessing import Lock, Event
 from threading import Thread
+from time import sleep
 from typing import Any, Callable
 
 # Create global Process Manager
 from crawlMp import share_manager
-from crawlMp.sources.crawlWorker import CrawlWorker
-from crawlMp.sources.results import Results
+from crawlMp.crawlWorker import CrawlWorker
+from crawlMp.results import Results
 
 
 class CrawlMp:
@@ -173,8 +174,16 @@ class CrawlMp:
         Pause crawling until resume
         :return: None
         """
+        while len(self.workers) != self.num_proc:
+            # Wait until all workers are initialized
+            sleep(0.1)
+
         self.sig_resumed.clear()
         self.sig_paused.set()
+
+        for worker in self.workers:
+            # Block until all workers are idle
+            worker.sig_idle.wait()
 
     def resume(self) -> None:
         """
@@ -183,7 +192,9 @@ class CrawlMp:
         """
         self.sig_paused.clear()
         self.sig_resumed.set()
+
         for worker in self.workers:
+            # Wake up all workers again
             worker.wake_signal.set()
 
     def is_paused(self) -> bool:

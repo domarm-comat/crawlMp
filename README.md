@@ -52,8 +52,8 @@ CrawlMp does it effectively as well.
 ### Python code (blocking) ###
 
 ```
-from crawlMp.sources.fileCrawler import FileSearchCrawler
-from crawlMp.sources.crawlMp import CrawlMp
+from crawlMp.crawlers.fileCrawler import FileSearchCrawler
+from crawlMp.crawlMp import CrawlMp
 from crawlMp.snippets.output import print_summary
 
 manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\.zip$")
@@ -64,8 +64,8 @@ print_summary(manager.results)
 ### Python code (callback) ###
 
 ```
-from crawlMp.sources.fileCrawler import FileSearchCrawler
-from crawlMp.sources.crawlMp import CrawlMp
+from crawlMp.crawlers.fileCrawler import FileSearchCrawler
+from crawlMp.crawlMp import CrawlMp
 from crawlMp.snippets.output import print_summary
 
 def on_done(results):

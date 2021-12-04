@@ -3,7 +3,7 @@ import os
 import re
 
 from crawlMp import CrawlException
-from crawlMp.sources.interfaces.crawler import Crawler
+from crawlMp.crawlers.crawler import Crawler
 
 
 class FileCrawler(Crawler):

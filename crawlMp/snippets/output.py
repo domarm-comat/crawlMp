@@ -1,7 +1,7 @@
 from time import time_ns
 
 from crawlMp import start_time
-from crawlMp.sources.results import Results
+from crawlMp.results import Results
 
 
 def print_summary(results: Results = None) -> None:

@@ -4,7 +4,7 @@ from copy import copy
 import pytest
 
 from crawlMp.snippets.output import print_summary, print_list
-from crawlMp.sources.fileCrawler import FileCrawler
+from crawlMp.crawlers.fileCrawler import FileCrawler
 
 
 @pytest.mark.parametrize("links", [["/"]])

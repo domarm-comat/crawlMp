@@ -3,8 +3,8 @@ from time import sleep
 
 import pytest
 
-from crawlMp.sources.crawlMp import CrawlMp
-from crawlMp.sources.fileCrawler import FileCrawler
+from crawlMp.crawlMp import CrawlMp
+from crawlMp.crawlers.fileCrawler import FileCrawler
 
 
 def done_cb(results, done_event):
@@ -65,7 +65,7 @@ def test_crawlMp_append_link(fake_fs):
     for i in range(append_link_times):
         manager.append_links(["/"])
 
-    done_event.wait()
+    done_event.wait(timeout=15)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811 * (append_link_times + 20)
@@ -82,14 +82,14 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
 
     sleep(pause_offset)
     manager.pause()
-    sleep(1.5)
+    sleep(pause_offset)
     manager.resume()
-    sleep(0.1)
+    sleep(pause_offset)
     manager.pause()
-    sleep(0.1)
+    sleep(pause_offset)
     manager.resume()
 
-    done_event.wait()
+    done_event.wait(timeout=15)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811 * multiplier
@@ -98,7 +98,7 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
 
 
 @pytest.mark.parametrize('execution_number', range(5))
-@pytest.mark.parametrize("pause_offset", [0, 0.1, 1])
+@pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
 def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number):
     done_event = Event()
     manager = CrawlMp(FileCrawler, links=["/"] * 100)
@@ -106,11 +106,11 @@ def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number):
 
     sleep(pause_offset)
     manager.pause()
-    sleep(1.5)
+    sleep(pause_offset)
     manager.resume()
-    sleep(0.1)
+    sleep(pause_offset)
     manager.pause()
-    sleep(0.1)
+    sleep(pause_offset)
     manager.stop()
 
     done_event.wait(timeout=0.1)

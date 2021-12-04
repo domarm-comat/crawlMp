@@ -7,9 +7,9 @@ import sys
 
 from crawlMp.constants import *
 from crawlMp.snippets.output import print_summary, print_list
-from crawlMp.sources.crawlMp import CrawlMp
-from crawlMp.sources.fileCrawler import FileSearchCrawler
-from crawlMp.sources.results import Results
+from crawlMp.crawlMp import CrawlMp
+from crawlMp.crawlers.fileCrawler import FileSearchCrawler
+from crawlMp.results import Results
 
 description = [
     "MultiProcess recursive file search.",

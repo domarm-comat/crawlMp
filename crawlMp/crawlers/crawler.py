@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from crawlMp import CrawlException
-from crawlMp.sources.results import Results
+from crawlMp.results import Results
 
 
 class Crawler(ABC):
