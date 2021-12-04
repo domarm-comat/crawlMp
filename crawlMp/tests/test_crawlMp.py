@@ -74,6 +74,7 @@ def test_crawlMp_append_link(fake_fs, num_proc):
     assert len(manager.results.links_followed) == 148 * (append_link_times + multiplier)
     assert len(manager.results.links_failed) == 2 * (append_link_times + multiplier)
 
+
 @pytest.mark.parametrize('execution_number', range(5))
 @pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
 @pytest.mark.parametrize("num_proc", [1, 2])
