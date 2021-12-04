@@ -11,7 +11,7 @@ def done_cb(results, done_event):
     done_event.set()
 
 
-@pytest.mark.parametrize("num_proc", [1, 2, 4, 6, 8])
+@pytest.mark.parametrize("num_proc", [1, 2, 3])
 def test_crawlMp_num_proc(fake_fs, num_proc):
     done_event = Event()
     manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
@@ -56,10 +56,10 @@ def test_crawlMp_numproc_fail(fake_fs, num_proc):
         CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
 
 
-@pytest.mark.parametrize("num_proc", [1, 8])
+@pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_link(fake_fs, num_proc):
     done_event = Event()
-    multiplier = 30
+    multiplier = 10
     manager = CrawlMp(FileCrawler, links=["/"] * multiplier, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
@@ -76,10 +76,10 @@ def test_crawlMp_append_link(fake_fs, num_proc):
 
 @pytest.mark.parametrize('execution_number', range(5))
 @pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
-@pytest.mark.parametrize("num_proc", [1, 8])
+@pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number, num_proc):
     done_event = Event()
-    multiplier = 30
+    multiplier = 10
     manager = CrawlMp(FileCrawler, links=["/"] * multiplier, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
@@ -95,14 +95,14 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number, num_proc)
     done_event.wait(timeout=60)
     assert done_event.is_set()
 
-    # assert len(manager.results.hits) == 1811 * multiplier
-    # assert len(manager.results.links_followed) == 148 * multiplier
-    # assert len(manager.results.links_failed) == 2 * multiplier
+    assert len(manager.results.hits) == 1811 * multiplier
+    assert len(manager.results.links_followed) == 148 * multiplier
+    assert len(manager.results.links_failed) == 2 * multiplier
 
 
 @pytest.mark.parametrize('execution_number', range(5))
 @pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
-@pytest.mark.parametrize("num_proc", [1, 8])
+@pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number, num_proc):
     done_event = Event()
     manager = CrawlMp(FileCrawler, links=["/"] * 100, num_proc=num_proc)
@@ -117,5 +117,5 @@ def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number, num_
     sleep(pause_offset)
     manager.stop()
 
-    done_event.wait(timeout=60)
+    done_event.wait(timeout=3)
     assert done_event.is_set()
