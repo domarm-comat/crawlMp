@@ -190,9 +190,10 @@ class CrawlMp:
         self.sig_resumed.clear()
         self.sig_paused.set()
 
-        for worker in self.workers:
-            # Block until all workers are idle
-            worker.sig_idle.wait()
+        if self.num_proc > 1:
+            for worker in self.workers:
+                # Block until all workers are idle
+                worker.sig_idle.wait()
 
     def resume(self) -> None:
         """
@@ -202,9 +203,10 @@ class CrawlMp:
         self.sig_paused.clear()
         self.sig_resumed.set()
 
-        for worker in self.workers:
-            # Wake up all workers again
-            worker.wake_signal.set()
+        if self.num_proc > 1:
+            for worker in self.workers:
+                # Wake up all workers again
+                worker.wake_signal.set()
 
     def is_paused(self) -> bool:
         """
