@@ -58,7 +58,8 @@ def test_crawlMp_numproc_fail(fake_fs, num_proc):
 
 def test_crawlMp_append_link(fake_fs):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"] * 20)
+    multiplier = 30
+    manager = CrawlMp(FileCrawler, links=["/"] * multiplier)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     append_link_times = 5
@@ -68,9 +69,9 @@ def test_crawlMp_append_link(fake_fs):
     done_event.wait(timeout=15)
     assert done_event.is_set()
 
-    assert len(manager.results.hits) == 1811 * (append_link_times + 20)
-    assert len(manager.results.links_followed) == 148 * (append_link_times + 20)
-    assert len(manager.results.links_failed) == 2 * (append_link_times + 20)
+    assert len(manager.results.hits) == 1811 * (append_link_times + multiplier)
+    assert len(manager.results.links_followed) == 148 * (append_link_times + multiplier)
+    assert len(manager.results.links_failed) == 2 * (append_link_times + multiplier)
 
 @pytest.mark.parametrize('execution_number', range(5))
 @pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
