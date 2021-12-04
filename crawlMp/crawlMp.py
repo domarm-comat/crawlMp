@@ -105,7 +105,7 @@ class CrawlMp:
         for worker in self.workers:
             # Wait until all workers are finished
             worker.join()
-        # Call the Callback if necessary
+        # Call the Callback if it's set
         if callback is not None:
             callback(self.results)
         else:
@@ -135,6 +135,8 @@ class CrawlMp:
         for crawl in self.crawler_class(self.jobs_list[:], *self.args, **self.kwargs):
             if not self.running:
                 break
+            elif self.sig_paused.is_set():
+                self.sig_resumed.wait()
             iterations += 1
             if iterations % self.buffer_size == 0:
                 flush_results(crawl)
@@ -143,7 +145,7 @@ class CrawlMp:
             # Flush rest of the results
             flush_results(crawl)
 
-        # Call the Callback if necessary
+        # Call the Callback if it's set
         if callback is not None:
             callback(self.results)
         else:
@@ -180,9 +182,10 @@ class CrawlMp:
         Pause crawling until resume
         :return: None
         """
-        while len(self.workers) != self.num_proc:
-            # Wait until all workers are initialized
-            sleep(0.1)
+        if self.num_proc > 1:
+            while len(self.workers) != self.num_proc:
+                # Wait until all workers are initialized
+                sleep(0.1)
 
         self.sig_resumed.clear()
         self.sig_paused.set()

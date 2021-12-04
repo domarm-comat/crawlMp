@@ -56,10 +56,11 @@ def test_crawlMp_numproc_fail(fake_fs, num_proc):
         CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
 
 
-def test_crawlMp_append_link(fake_fs):
+@pytest.mark.parametrize("num_proc", [1, 8])
+def test_crawlMp_append_link(fake_fs, num_proc):
     done_event = Event()
     multiplier = 30
-    manager = CrawlMp(FileCrawler, links=["/"] * multiplier)
+    manager = CrawlMp(FileCrawler, links=["/"] * multiplier, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     append_link_times = 5
@@ -75,10 +76,11 @@ def test_crawlMp_append_link(fake_fs):
 
 @pytest.mark.parametrize('execution_number', range(5))
 @pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
-def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
+@pytest.mark.parametrize("num_proc", [1, 8])
+def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number, num_proc):
     done_event = Event()
     multiplier = 30
-    manager = CrawlMp(FileCrawler, links=["/"] * multiplier)
+    manager = CrawlMp(FileCrawler, links=["/"] * multiplier, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     sleep(pause_offset)
@@ -100,9 +102,10 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
 
 @pytest.mark.parametrize('execution_number', range(5))
 @pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
-def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number):
+@pytest.mark.parametrize("num_proc", [1, 8])
+def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number, num_proc):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"] * 100)
+    manager = CrawlMp(FileCrawler, links=["/"] * 100, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     sleep(pause_offset)
@@ -114,5 +117,5 @@ def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number):
     sleep(pause_offset)
     manager.stop()
 
-    done_event.wait(timeout=0.1)
+    done_event.wait(timeout=60)
     assert done_event.is_set()
