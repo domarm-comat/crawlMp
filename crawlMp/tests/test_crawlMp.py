@@ -30,7 +30,7 @@ def test_crawlMp_callback(fake_fs):
     manager = CrawlMp(FileCrawler, links=["/"])
     manager.start(callback=lambda results: done_cb(results, done_event))
 
-    done_event.wait(timeout=5)
+    done_event.wait(timeout=60)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811
@@ -46,7 +46,7 @@ def test_crawlMp_stop(fake_fs):
     sleep(0.5)
     manager.stop()
 
-    done_event.wait(timeout=5)
+    done_event.wait(timeout=60)
     assert done_event.is_set()
 
 
@@ -66,7 +66,7 @@ def test_crawlMp_append_link(fake_fs):
     for i in range(append_link_times):
         manager.append_links(["/"])
 
-    done_event.wait(timeout=15)
+    done_event.wait(timeout=60)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811 * (append_link_times + multiplier)
@@ -90,7 +90,7 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
     sleep(pause_offset)
     manager.resume()
 
-    done_event.wait(timeout=0)
+    done_event.wait(timeout=60)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811 * multiplier
