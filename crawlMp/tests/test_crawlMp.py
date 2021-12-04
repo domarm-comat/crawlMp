@@ -90,7 +90,7 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number):
     sleep(pause_offset)
     manager.resume()
 
-    done_event.wait(timeout=15)
+    done_event.wait(timeout=0)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811 * multiplier

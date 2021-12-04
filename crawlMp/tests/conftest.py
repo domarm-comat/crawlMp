@@ -5,7 +5,10 @@ import pytest
 
 @pytest.fixture(scope="session")
 def fs_files_mock():
-    with open("./crawlMp/tests/fs_files.txt") as fp:
+    path = "./crawlMp/tests/fs_files.txt"
+    if not os.path.exists(path):
+        path = "./fs_files.txt"
+    with open(path) as fp:
         yield fp.readlines()
 
 
