@@ -1,19 +1,19 @@
-Name                                 Stmts   Miss  Cover
---------------------------------------------------------
-crawlMp/__init__.py                      6      0   100%
-crawlMp/crawlMp.py                     116      4    97%
-crawlMp/crawlWorker.py                  54      0   100%
-crawlMp/crawlers/__init__.py             0      0   100%
-crawlMp/crawlers/crawler.py             49      6    88%
-crawlMp/crawlers/fileCrawler.py         35      0   100%
-crawlMp/results.py                      10      0   100%
-crawlMp/snippets/__init__.py             0      0   100%
-crawlMp/snippets/output.py              13      0   100%
-crawlMp/tests/__init__.py                0      0   100%
-crawlMp/tests/conftest.py               30      3    90%
-crawlMp/tests/test_crawlMp.py           90      0   100%
-crawlMp/tests/test_crawl_worker.py      28      0   100%
-crawlMp/tests/test_fileCrawler.py       40      0   100%
-crawlMp/tests/test_snippets.py          31      0   100%
---------------------------------------------------------
-TOTAL                                  502     13    97%
+Name                                Stmts   Miss  Cover
+-------------------------------------------------------
+crawlMp/__init__.py                     6      0   100%
+crawlMp/crawlMp.py                    116      4    97%
+crawlMp/crawlWorker.py                 54      0   100%
+crawlMp/crawlers/__init__.py            0      0   100%
+crawlMp/crawlers/crawler.py            49      6    88%
+crawlMp/crawlers/fileCrawler.py        35      0   100%
+crawlMp/results.py                     10      0   100%
+crawlMp/snippets/__init__.py            0      0   100%
+crawlMp/snippets/output.py             13      0   100%
+crawlMp/tests/__init__.py               0      0   100%
+crawlMp/tests/conftest.py              30      3    90%
+crawlMp/tests/test_crawlMp.py          90      0   100%
+crawlMp/tests/test_crawlWorker.py      33      0   100%
+crawlMp/tests/test_fileCrawler.py      40      0   100%
+crawlMp/tests/test_snippets.py         31      0   100%
+-------------------------------------------------------
+TOTAL                                 507     13    97%
