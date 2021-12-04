@@ -72,25 +72,31 @@ class CrawlMp:
         # Spawn and start all workers
         self._init_workers()
         while True:
+            jobs_count = len(self.jobs_list)
             idle_workers = 0
             try:
                 self.sig_worker_idle.wait(timeout=1)
                 # If one of the Workers is Idle
                 # Count number of Idle workers
-                for worker in self.workers:
-                    if not worker.wake_signal.is_set():
-                        # Worker's wake_signal is low
-                        # Wake up Worker
-                        worker.wake_signal.set()
-                        idle_workers += 1
-                # Clear worker idle signal
-                self.sig_worker_idle.clear()
+                if jobs_count > 0:
+                    for worker in self.workers:
+                        if not worker.wake_signal.is_set():
+                            # Worker's wake_signal is low
+                            # Wake up Worker
+                            worker.wake_signal.set()
+                            idle_workers += 1
+                    # Clear worker idle signal
+                    self.sig_worker_idle.clear()
+                else:
+                    for worker in self.workers:
+                        if not worker.wake_signal.is_set():
+                            idle_workers += 1
             except RuntimeError:
-                continue
+                pass
             finally:
                 if self.is_paused():
                     self.sig_resumed.wait()
-                elif not self.running or (idle_workers == self.num_proc and len(self.jobs_list) == 0):
+                elif not self.running or (idle_workers == self.num_proc and jobs_count == 0):
                     # All workers are idle and job_list is empty
                     # All jobs are finished, close all workers
                     self.stop_workers()
