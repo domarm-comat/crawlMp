@@ -56,6 +56,12 @@ def test_crawlMp_numproc_fail(fake_fs, num_proc):
         CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
 
 
+@pytest.mark.parametrize("num_proc", [0, -1])
+def test_crawlMp_buffer_size_fail(fake_fs, num_proc):
+    with pytest.raises(AssertionError):
+        CrawlMp(FileCrawler, links=["/"], buffer_size=num_proc)
+
+
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_link(fake_fs, num_proc):
     done_event = Event()
