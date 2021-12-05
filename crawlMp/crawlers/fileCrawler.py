@@ -1,6 +1,7 @@
 import math
 import os
 import re
+from builtins import OSError
 
 from crawlMp import CrawlException
 from crawlMp.crawlers.crawler import Crawler
@@ -31,8 +32,14 @@ class FileCrawler(Crawler):
         if os.path.islink(self.entrypoint):
             raise CrawlException("Link entrypoint is ignored!")
         try:
-            return next(os.walk(self.entrypoint))
-        except StopIteration:
+            files, dirs = [], []
+            for entry in os.scandir(self.entrypoint):
+                if entry.is_dir():
+                    dirs.append(entry.name)
+                elif entry.is_file():
+                    files.append(entry.name)
+            return self.entrypoint, dirs, files
+        except (PermissionError, OSError):
             # If for any reason walk can't be finished raise an error
             raise CrawlException("Entrypoint could not be accessed!")
 
@@ -44,13 +51,8 @@ class FileCrawler(Crawler):
         root, dirs, files = self.metadata
         hits = []
         for filename in files:
-            # if root == os.sep:
-            #     filepath = root + filename
-            # else:
-            #     filepath = root + os.sep + filename
-            filepath = os.path.join(root, filename)
-            if self.is_hit(filepath):
-                hits.append(filepath)
+            if self.is_hit(filename):
+                hits.append(os.path.join(root, filename))
         return hits
 
     def extract_links(self) -> list:
@@ -61,13 +63,8 @@ class FileCrawler(Crawler):
         root, dirs, files = self.metadata
         links = []
         for dirname in dirs:
-            # if root == os.sep:
-            #     dirpath = root + dirname
-            # else:
-            #     dirpath = root + os.sep + dirname
-            dirpath = os.path.join(root, dirname)
-            if self.is_link(dirpath):
-                links.append(dirpath)
+            if self.is_link(dirname):
+                links.append(os.path.join(root, dirname))
         return links
 
     def is_hit(self, item: str) -> bool:
@@ -84,8 +81,7 @@ class FileCrawler(Crawler):
         :param str item: Directory
         :return bool: True if path_depth < self.max_depth
         """
-        path_depth = self.entrypoint.count(os.sep)
-        return path_depth < self.max_depth
+        return self.entrypoint.count(os.sep) < self.max_depth
 
     def close_entrypoint(self) -> None:
         """
