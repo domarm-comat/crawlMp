@@ -21,6 +21,7 @@ class CrawlWorker(Process):
 
     def __init__(self, results: Results, crawler_class, jobs_list: list, sig_pause: Event, sig_idle: Event,
                  buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
+        assert buffer_size >= 1
         Process.__init__(self)
         self.worker_id = next(self.id_gen)
         self.results = results

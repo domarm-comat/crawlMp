@@ -14,6 +14,7 @@ class CrawlMp:
     def __init__(self, crawler_class, links: list, num_proc: int = 4, buffer_size: int = 96, *args: Any,
                  **kwargs: Any) -> None:
         assert num_proc > 0
+        assert buffer_size >= 1
         self.num_proc = num_proc
         self.crawler_class = crawler_class
         self.jobs_list = share_manager.list(links)
