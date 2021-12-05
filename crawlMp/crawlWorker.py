@@ -1,6 +1,7 @@
 from multiprocessing import Event, Process, Lock
-from typing import Any, Iterator
+from typing import Any, Iterator, Type
 
+from crawlMp.crawlers.crawler import Crawler
 from crawlMp.results import Results
 
 
@@ -16,11 +17,24 @@ def worker_id_gen() -> Iterator:
 
 
 class CrawlWorker(Process):
+    """
+    Worker process, which will run Crawler.
+    """
     id_gen = worker_id_gen()
     jobs_acquiring_lock = Lock()
 
-    def __init__(self, results: Results, crawler_class, jobs_list: list, sig_pause: Event, sig_idle: Event,
-                 buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: list, sig_pause: Event,
+                 sig_idle: Event, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
+        """
+        :param Result results: results object
+        :param crawler_class: Crawler class
+        :param list jobs_list: list of links
+        :param Event sig_pause: Pause signal
+        :param Event sig_idle: Idle signal
+        :param int buffer_size: Size of links buffer
+        :param args:
+        :param kwargs:
+        """
         assert buffer_size >= 1
         Process.__init__(self)
         self.worker_id = next(self.id_gen)

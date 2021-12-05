@@ -1,11 +1,11 @@
 Name                                Stmts   Miss  Cover
 -------------------------------------------------------
 crawlMp/__init__.py                     6      0   100%
-crawlMp/crawlMp.py                    117      4    97%
-crawlMp/crawlWorker.py                 55      0   100%
+crawlMp/crawlMp.py                    118      4    97%
+crawlMp/crawlWorker.py                 56      0   100%
 crawlMp/crawlers/__init__.py            0      0   100%
-crawlMp/crawlers/crawler.py            49      6    88%
-crawlMp/crawlers/fileCrawler.py        35      0   100%
+crawlMp/crawlers/crawler.py            52      7    87%
+crawlMp/crawlers/fileCrawler.py        46      0   100%
 crawlMp/results.py                     10      0   100%
 crawlMp/snippets/__init__.py            0      0   100%
 crawlMp/snippets/output.py             13      0   100%
@@ -16,4 +16,4 @@ crawlMp/tests/test_crawlWorker.py      33      0   100%
 crawlMp/tests/test_fileCrawler.py      40      0   100%
 crawlMp/tests/test_snippets.py         31      0   100%
 -------------------------------------------------------
-TOTAL                                 513     13    97%
+TOTAL                                 529     14    97%

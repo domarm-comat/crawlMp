@@ -1,18 +1,30 @@
 from multiprocessing import Lock, Event
 from threading import Thread
 from time import sleep
-from typing import Any, Callable
+from typing import Any, Callable, Type
 
 # Create global Process Manager
 from crawlMp import share_manager
 from crawlMp.crawlWorker import CrawlWorker
+from crawlMp.crawlers.crawler import Crawler
 from crawlMp.results import Results
 
 
 class CrawlMp:
+    """
+    Crawl Manager, spawns workers that crawl through links.
+    """
 
-    def __init__(self, crawler_class, links: list, num_proc: int = 4, buffer_size: int = 96, *args: Any,
+    def __init__(self, crawler_class: Type[Crawler], links: list, num_proc: int = 4, buffer_size: int = 96, *args: Any,
                  **kwargs: Any) -> None:
+        """
+        :param crawler_class: Crawler class to use with Worker
+        :param list links: List of entrypoints
+        :param int num_proc: Number of processes
+        :param int buffer_size: Size of links buffer
+        :param args:
+        :param kwargs:
+        """
         assert num_proc > 0
         assert buffer_size >= 1
         self.num_proc = num_proc
