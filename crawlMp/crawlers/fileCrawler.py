@@ -29,16 +29,17 @@ class FileCrawler(Crawler):
         Walk directory and extract root, dirs, files
         :return list: (root, dirs, files)
         """
-        if os.path.islink(self.entrypoint):
-            raise CrawlException("Link entrypoint is ignored!")
         try:
-            files, dirs = [], []
+            files, dirs, filepaths = [], [], []
             for entry in os.scandir(self.entrypoint):
-                if entry.is_dir():
-                    dirs.append(entry.name)
-                elif entry.is_file():
+                if entry.is_dir(follow_symlinks=False):
+                    dirs.append(entry.path)
+                elif entry.is_file(follow_symlinks=False):
                     files.append(entry.name)
-            return self.entrypoint, dirs, files
+                    filepaths.append(entry.path)
+                else:
+                    self.results.links_skipped.append(entry.path)
+            return dirs, files, filepaths
         except (PermissionError, OSError):
             # If for any reason walk can't be finished raise an error
             raise CrawlException("Entrypoint could not be accessed!")
@@ -48,11 +49,11 @@ class FileCrawler(Crawler):
         Extract all files in entrypoint
         :return list: list of files
         """
-        root, dirs, files = self.metadata
+        _, files, filepaths = self.metadata
         hits = []
-        for filename in files:
+        for i, filename in enumerate(files):
             if self.is_hit(filename):
-                hits.append(os.path.join(root, filename))
+                hits.append(filepaths[i])
         return hits
 
     def extract_links(self) -> list:
@@ -60,11 +61,11 @@ class FileCrawler(Crawler):
         Extract all other directories in entrypoint.
         :return list: list of directories
         """
-        root, dirs, files = self.metadata
+        dirs, _, _ = self.metadata
         links = []
-        for dirname in dirs:
-            if self.is_link(dirname):
-                links.append(os.path.join(root, dirname))
+        for dirpath in dirs:
+            if self.is_link(dirpath):
+                links.append(dirpath)
         return links
 
     def is_hit(self, item: str) -> bool:

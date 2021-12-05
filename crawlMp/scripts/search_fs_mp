@@ -17,13 +17,13 @@ description = [
     "",
     "Usage examples:",
     "  Search for all .zip files:",
-    "  search_fs_mp \.zip$",
+    "  search_fs_mp \\\\.zip$",
     "",
     "  Get all .zip files in different directories:",
-    "  search_fs_mp \.zip$ -l /home /usr/share",
+    "  search_fs_mp \\\\.zip$ -l /home /usr/share",
     "",
     "  Show search summary:",
-    "  search_fs_mp \.zip$ -l /home /usr/share -os",
+    "  search_fs_mp \\\\.zip$ -l /home /usr/share -os",
     "",
 ]
 

@@ -22,7 +22,7 @@ def test_crawlMp_num_proc(fake_fs, num_proc):
 
     assert len(manager.results.hits) == 1811
     assert len(manager.results.links_followed) == 148
-    assert len(manager.results.links_failed) == 2
+    assert len(manager.results.links_skipped) == 2
 
 
 def test_crawlMp_callback(fake_fs):
@@ -35,7 +35,7 @@ def test_crawlMp_callback(fake_fs):
 
     assert len(manager.results.hits) == 1811
     assert len(manager.results.links_followed) == 148
-    assert len(manager.results.links_failed) == 2
+    assert len(manager.results.links_skipped) == 2
 
 
 def test_crawlMp_stop(fake_fs):
@@ -78,7 +78,7 @@ def test_crawlMp_append_link(fake_fs, num_proc):
 
     assert len(manager.results.hits) == 1811 * (append_link_times + multiplier)
     assert len(manager.results.links_followed) == 148 * (append_link_times + multiplier)
-    assert len(manager.results.links_failed) == 2 * (append_link_times + multiplier)
+    assert len(manager.results.links_skipped) == 2 * (append_link_times + multiplier)
 
 
 @pytest.mark.parametrize('execution_number', range(5))
@@ -104,7 +104,7 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number, num_proc)
 
     assert len(manager.results.hits) == 1811 * multiplier
     assert len(manager.results.links_followed) == 148 * multiplier
-    assert len(manager.results.links_failed) == 2 * multiplier
+    assert len(manager.results.links_skipped) == 2 * multiplier
 
 
 @pytest.mark.parametrize('execution_number', range(5))

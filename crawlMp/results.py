@@ -15,7 +15,7 @@ class Results:
         # Required fields
         self.hits = share_manager.list() if shared else []
         self.links_followed = share_manager.list() if shared else []
-        self.links_failed = share_manager.list() if shared else []
+        self.links_skipped = share_manager.list() if shared else []
 
     def reset(self) -> None:
         """
@@ -24,4 +24,4 @@ class Results:
         """
         self.hits[:] = []
         self.links_followed[:] = []
-        self.links_failed[:] = []
+        self.links_skipped[:] = []

@@ -14,7 +14,7 @@ def print_summary(results: Results = None) -> None:
         print(f"Crawled in: {(time() - start_time)} s")
         print(f"Number of hits: {len(results.hits)}")
         print(f"Number of followed links: {len(results.links_followed)}")
-        print(f"Number of failed links: {len(results.links_failed)}")
+        print(f"Number of skipped links: {len(results.links_skipped)}")
     else:
         print("No results...")
 

@@ -32,6 +32,6 @@ def test_crawl_worker(fake_fs):
 
     worker_2.sig_idle.wait(timeout=1)
     assert worker_2.worker_id - worker_1.worker_id == 1
-    assert len(results.hits) == 3622
-    assert len(results.links_followed) == 296
-    assert len(results.links_failed) == 4
+    assert len(results.hits) == 3617
+    assert len(results.links_followed) == 295
+    assert len(results.links_skipped) == 4

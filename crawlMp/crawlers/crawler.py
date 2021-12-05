@@ -41,7 +41,7 @@ class Crawler(ABC):
             self.crawl(next_link)
         except CrawlException:
             # If crawl fails for any reason, don't follow that link
-            self.results.links_failed.append(next_link)
+            self.results.links_skipped.append(next_link)
         return self
 
     @abstractmethod

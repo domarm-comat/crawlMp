@@ -43,11 +43,11 @@ CrawlMp does it effectively as well.
 * Show help:  
   `search_fs_mp --help`
 * Search for .zip files  
-  `search_fs_mp \.zip$`
+  `search_fs_mp \\.zip$`
 * Get all .zip files in different directories  
-  `search_fs_mp \.zip$ -l /home /usr/share`
+  `search_fs_mp \\.zip$ -l /home /usr/share`
 * Show search summary  
-  `search_fs_mp \.zip$ -l /home /usr/share -os`
+  `search_fs_mp \\.zip$ -l /home /usr/share -os`
 
 ### Python code (blocking) ###
 
@@ -56,7 +56,7 @@ from crawlMp.crawlers.fileCrawler import FileSearchCrawler
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.snippets.output import print_summary
 
-manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\.zip$")
+manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\\.zip$")
 manager.start()
 print_summary(manager.results)
 ```
@@ -71,7 +71,7 @@ from crawlMp.snippets.output import print_summary
 def on_done(results):
   print_summary(results)
 
-manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\.zip$")
+manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\\.zip$")
 manager.start(on_done)
 ```
 

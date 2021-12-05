@@ -140,7 +140,7 @@ class CrawlMp:
             """
             self.results.hits += crawler.results.hits
             self.results.links_followed += crawler.results.links_followed
-            self.results.links_failed += crawler.results.links_failed
+            self.results.links_skipped += crawler.results.links_skipped
             crawler.results.reset()
 
         iterations = 0

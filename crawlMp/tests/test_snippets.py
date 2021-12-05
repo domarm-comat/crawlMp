@@ -12,14 +12,13 @@ def test_print_summary(fake_fs, links, capsys):
     crawl = None
     for crawl in FileCrawler(copy(links), max_depth=2):
         pass
-
     assert crawl is not None
 
     print_summary(crawl.results)
     captured = capsys.readouterr()
-    expected = [550, 41, 1]
+    expected = [550, 41, 2]
     expected_output = re.compile(
-        f"Crawled in: (.*) s\nNumber of hits: {expected[0]}\nNumber of followed links: {expected[1]}\nNumber of failed links: {expected[2]}\n")
+        f"Crawled in: (.*) s\nNumber of hits: {expected[0]}\nNumber of followed links: {expected[1]}\nNumber of skipped links: {expected[2]}\n")
     assert re.match(expected_output, captured.out) is not None
 
 
