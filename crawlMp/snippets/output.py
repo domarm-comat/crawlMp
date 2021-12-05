@@ -1,4 +1,4 @@
-from time import time_ns
+from time import time
 
 from crawlMp import start_time
 from crawlMp.results import Results
@@ -11,7 +11,7 @@ def print_summary(results: Results = None) -> None:
     :return: None
     """
     if results is not None:
-        print(f"Crawled in: {(time_ns() - start_time) * 1e-9} s")
+        print(f"Crawled in: {(time() - start_time)} s")
         print(f"Number of hits: {len(results.hits)}")
         print(f"Number of followed links: {len(results.links_followed)}")
         print(f"Number of failed links: {len(results.links_failed)}")
