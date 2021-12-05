@@ -2,12 +2,14 @@ from multiprocessing import Event
 from threading import Thread
 from time import sleep
 
+import pytest
+
 from crawlMp.crawlWorker import CrawlWorker
 from crawlMp.crawlers.fileCrawler import FileCrawler
 from crawlMp.results import Results
 
-
-def test_crawl_worker(fake_fs):
+@pytest.mark.parametrize('execution_number', range(5))
+def test_crawl_worker(fake_fs, execution_number):
     sig_pause = Event()
     sig_idle = Event()
     results = Results()
@@ -26,7 +28,7 @@ def test_crawl_worker(fake_fs):
     sleep(0.2)
     sig_idle.clear()
     worker_2.wake_signal.set()
-    sleep(1)
+    sleep(10)
     worker_2.stop()
     worker_2.wake_signal.set()
 
