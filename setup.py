@@ -28,6 +28,7 @@ setuptools.setup(
         "coverage>=6.2",
         "pyfakefs>=4.5.3",
         "pytest>=6.2.5",
+        "pandas>=1.1.5",
     ],
     extras_requires={
     },
