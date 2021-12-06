@@ -14,26 +14,27 @@ def test_crawl_worker(fake_fs, execution_number):
     sig_idle = Event()
     results = Results()
     job_list = ["/"]
-    worker_1 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, links=["/"], buffer_size=5)
-    worker_2 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, links=["/"], buffer_size=5)
-    Thread(target=worker_2.run).start()
-    worker_2.wake_signal.set()
+    worker_1 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, links=None, buffer_size=5)
+    t1 = Thread(target=worker_1.run)
+    t1.start()
+    worker_1.wake_signal.set()
     sig_pause.set()
     sleep(1)
     sig_pause.clear()
     sleep(0.1)
-    worker_2.wake_signal.set()
+    worker_1.wake_signal.set()
     sleep(0.2)
     sig_idle.set()
     sleep(0.2)
     sig_idle.clear()
-    worker_2.wake_signal.set()
-    sleep(10)
-    worker_2.stop()
-    worker_2.wake_signal.set()
-
-    worker_2.sig_idle.wait(timeout=1)
+    worker_1.wake_signal.set()
+    while len(job_list) != 0 or not worker_1.sig_idle.is_set():
+        worker_1.sig_idle.wait(timeout=10)
+        worker_1.stop()
+        worker_1.wake_signal.set()
+    t1.join()
+    worker_2 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, links=None)
     assert worker_2.worker_id - worker_1.worker_id == 1
-    assert len(results.hits) == 3617
-    assert len(results.links_followed) == 295
-    assert len(results.links_skipped) == 4
+    assert len(results.hits) == 1811
+    assert len(results.links_followed) == 148
+    assert len(results.links_skipped) == 2

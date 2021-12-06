@@ -12,8 +12,8 @@ crawlMp/snippets/output.py             13      0   100%
 crawlMp/tests/__init__.py               0      0   100%
 crawlMp/tests/conftest.py              30      3    90%
 crawlMp/tests/test_crawlMp.py          94      0   100%
-crawlMp/tests/test_crawlWorker.py      33      0   100%
+crawlMp/tests/test_crawlWorker.py      37      0   100%
 crawlMp/tests/test_fileCrawler.py      40      0   100%
 crawlMp/tests/test_snippets.py         31      0   100%
 -------------------------------------------------------
-TOTAL                                 533     14    97%
+TOTAL                                 537     14    97%
