@@ -66,7 +66,6 @@ class FileCrawler(Crawler):
                         hits.append((filepaths[i], file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
                     except FileNotFoundError:
                         pass
-                    # print(file_stat)
         return hits
 
     def extract_links(self) -> list:

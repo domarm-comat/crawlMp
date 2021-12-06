@@ -15,6 +15,7 @@ class Results:
         :param bool shared: shared or local list
         """
         # Required fields
+        self.shared = shared
         self.hits = share_manager.list() if shared else []
         self.links_followed = share_manager.list() if shared else []
         self.links_skipped = share_manager.list() if shared else []

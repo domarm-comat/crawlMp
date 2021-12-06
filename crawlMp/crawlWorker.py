@@ -57,7 +57,10 @@ class CrawlWorker(Process):
         """
         # Initiate Crawler object for current Worker
         crawler = self.crawler_class(*self.args, **self.kwargs)
-        self.results.hits_header[:] = crawler.results.hits_header
+        if self.results.shared:
+            self.results.hits_header[:] = crawler.results.hits_header
+        else:
+            self.results.hits_header = crawler.results.hits_header
 
         def flush_results(crawler) -> None:
             """
