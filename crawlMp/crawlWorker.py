@@ -56,7 +56,9 @@ class CrawlWorker(Process):
         :return: None
         """
         # Initiate Crawler object for current Worker
+        print(self.kwargs)
         crawler = self.crawler_class(*self.args, **self.kwargs)
+        print(crawler.results.hits_header)
         if self.results.shared:
             self.results.hits_header[:] = crawler.results.hits_header
         else:

@@ -3,6 +3,7 @@ from copy import copy
 
 import pytest
 
+from crawlMp.constants import MODE_EXTENDED
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.fileCrawler import FileCrawler, FileSearchCrawler
 
@@ -61,7 +62,7 @@ def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
 
 
 @pytest.mark.parametrize("depth", [1, math.inf, 2, 3], ids=["d0", "d1", "d2", "d3"])
-@pytest.mark.parametrize("pattern", ["\\.py$", "\\.svg$", "\\.rst$", "\\.build$|\\.pyf$"], ids=["r0", "r1", "r2", "r3"])
+@pytest.mark.parametrize("pattern", ["\.py$", "\.svg$", "\.rst$", "\.build$|\.pyf$"], ids=["r0", "r1", "r2", "r3"])
 def test_fs_crawl_search(fake_fs, depth, pattern, request):
     test_id = request.node.callspec.id
     expected = {
@@ -88,3 +89,14 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
     assert len(results.hits) == expected[test_id][0]
     assert len(results.links_followed) == expected[test_id][1]
     assert len(results.links_skipped) == expected[test_id][2]
+
+
+@pytest.mark.parametrize("num_proc", [1, 2])
+def test_fs_crawl_extended_search(fake_fs, num_proc):
+    manager = CrawlMp(FileSearchCrawler, links=["/"], num_proc=num_proc, pattern="\.py$", max_depth=2,
+                      mode=MODE_EXTENDED)
+    results = manager.start()
+    df = results.dataframe()
+    assert len(results.hits) == 239 == len(df)
+    assert len(results.links_followed) == 41
+    assert len(results.links_skipped) == 2

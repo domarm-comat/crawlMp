@@ -155,6 +155,7 @@ class CrawlMp:
                 flush_results(crawl)
 
         if crawl is not None:
+            self.results.hits_header = crawl.results.hits_header
             # Flush rest of the results
             flush_results(crawl)
 
