@@ -80,5 +80,4 @@ def test_print_list(fake_fs, links, capsys):
 /azure-steps-windows.yml
 /runtests.py
 """
-
     assert expected_output == captured.out

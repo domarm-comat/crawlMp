@@ -40,16 +40,15 @@ class FileCrawler(Crawler):
         :return list: (root, dirs, files)
         """
         try:
-            files, dirs, filepaths = [], [], []
+            files, dirs = [], []
             for entry in os.scandir(self.entrypoint):
-                if entry.is_dir(follow_symlinks=False):
+                if entry.is_file(follow_symlinks=False):
+                    files.append((entry.name, entry.path))
+                elif entry.is_dir(follow_symlinks=False):
                     dirs.append(entry.path)
-                elif entry.is_file(follow_symlinks=False):
-                    files.append(entry.name)
-                    filepaths.append(entry.path)
                 else:
                     self.results.links_skipped.append(entry.path)
-            return dirs, files, filepaths
+            return dirs, files
         except (PermissionError, OSError):
             # If for any reason walk can't be finished raise an error
             raise CrawlException("Entrypoint could not be accessed!")
@@ -59,18 +58,20 @@ class FileCrawler(Crawler):
         Extract all files in entrypoint
         :return list: list of files
         """
-        _, files, filepaths = self.metadata
+        _, files = self.metadata
         hits = []
-        for i, filename in enumerate(files):
+        for filename, filepath in files:
             if self.is_hit(filename):
                 if self.mode == MODE_SIMPLE:
-                    hits.append((filepaths[i],))
+                    hits.append(filepath, )
                 elif self.mode == MODE_EXTENDED:
                     try:
-                        file_stat = os.stat(filepaths[i])
-                        hits.append((filepaths[i], file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
+                        file_stat = os.stat(filepath)
+                        hits.append((filepath, file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
                     except FileNotFoundError:
-                        pass
+                        # Ignore if File does not exist anymore
+                        # this can happen for linux processes and such
+                        continue
         return hits
 
     def extract_links(self) -> list:
@@ -78,7 +79,7 @@ class FileCrawler(Crawler):
         Extract all other directories in entrypoint.
         :return list: list of directories
         """
-        dirs, _, _ = self.metadata
+        dirs, _ = self.metadata
         links = []
         for dirpath in dirs:
             if self.is_link(dirpath):
@@ -111,11 +112,19 @@ class FileCrawler(Crawler):
 
 class FileSearchCrawler(FileCrawler):
     """
-    Crawl through filesystem and find all files by regexp pattern.
+    Crawl through filesystem and find all files matching regexp pattern.
     """
 
     def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=MODE_SIMPLE, *args,
                  **kwargs) -> None:
+        """
+        :param list links: List of paths / entrypoints
+        :param str pattern: regular expression pattern used to search for hits
+        :param int max_depth: Maximum crawl depth (how deep crawler goes)
+        :param str mode: Data collection mode
+        :param args: other positional argument
+        :param kwargs: other key arguments
+        """
         self.pattern = re.compile(pattern)
         FileCrawler.__init__(self, links, max_depth, mode, args, kwargs)
 
