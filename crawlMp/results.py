@@ -1,3 +1,5 @@
+from pandas import DataFrame
+
 from crawlMp import share_manager
 
 
@@ -16,6 +18,7 @@ class Results:
         self.hits = share_manager.list() if shared else []
         self.links_followed = share_manager.list() if shared else []
         self.links_skipped = share_manager.list() if shared else []
+        self.hits_header = share_manager.list(("Name",)) if shared else ("Name",)
 
     def reset(self) -> None:
         """
@@ -25,3 +28,10 @@ class Results:
         self.hits[:] = []
         self.links_followed[:] = []
         self.links_skipped[:] = []
+
+    def dataframe(self) -> DataFrame:
+        """
+        Get pandas data frame of collected results.
+        :return DataFrame: pandas DataFrame
+        """
+        return DataFrame(list(self.hits), columns=self.hits_header)
