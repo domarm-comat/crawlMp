@@ -65,7 +65,7 @@ def test_crawlMp_buffer_size_fail(fake_fs, num_proc):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_link(fake_fs, num_proc):
     done_event = Event()
-    multiplier = 10
+    multiplier = 5
     manager = CrawlMp(FileCrawler, links=["/"] * multiplier, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
@@ -86,7 +86,7 @@ def test_crawlMp_append_link(fake_fs, num_proc):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number, num_proc):
     done_event = Event()
-    multiplier = 10
+    multiplier = 5
     manager = CrawlMp(FileCrawler, links=["/"] * multiplier, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
