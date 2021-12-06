@@ -4,29 +4,34 @@ import re
 from builtins import OSError
 
 from crawlMp import CrawlException
+from crawlMp.constants import MODE_SIMPLE, MODE_EXTENDED
 from crawlMp.crawlers.crawler import Crawler
 
 
 class FileCrawler(Crawler):
     """
     Crawl through filesystem and find all files.
+    Supporting two collection modes:
+      - MODE_SIMPLE: ("Path")
+      - MODE_EXTENDED: ("Path", "Size (b)", "Modified", "Accessed")
+    MODE_EXTENDED is slower, because os.stat has to be called for every hit.
     """
 
-    def __init__(self, links: list, max_depth: int = math.inf, with_stat=False, *args, **kwargs) -> None:
+    def __init__(self, links: list, max_depth: int = math.inf, mode: str = MODE_SIMPLE, *args, **kwargs) -> None:
         """
         Crawl is finished when links list is empty.
         :param list links: List of paths / entrypoints
         :param int max_depth: Maximum crawl depth (how deep crawler goes)
+        :param str mode: Data collection mode
         :param args: other positional argument
         :param kwargs: other key arguments
         """
         assert max_depth >= 0
-        self.with_stat = with_stat
         self.max_depth = max_depth
-        Crawler.__init__(self, links, args, kwargs)
-        if with_stat:
+        Crawler.__init__(self, links, mode, args, kwargs)
+        if self.mode == MODE_EXTENDED:
             self.results.hits_header = ("Path", "Size (b)", "Modified", "Accessed")
-        else:
+        elif self.mode == MODE_SIMPLE:
             self.results.hits_header = ("Path",)
 
     def init_entrypoint(self) -> tuple:
@@ -58,9 +63,9 @@ class FileCrawler(Crawler):
         hits = []
         for i, filename in enumerate(files):
             if self.is_hit(filename):
-                if not self.with_stat:
+                if self.mode == MODE_SIMPLE:
                     hits.append((filepaths[i],))
-                else:
+                elif self.mode == MODE_EXTENDED:
                     try:
                         file_stat = os.stat(filepaths[i])
                         hits.append((filepaths[i], file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
@@ -109,10 +114,10 @@ class FileSearchCrawler(FileCrawler):
     Crawl through filesystem and find all files by regexp pattern.
     """
 
-    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, with_stat=False, *args,
+    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=MODE_SIMPLE, *args,
                  **kwargs) -> None:
         self.pattern = re.compile(pattern)
-        FileCrawler.__init__(self, links, max_depth, with_stat, args, kwargs)
+        FileCrawler.__init__(self, links, max_depth, mode, args, kwargs)
 
     def is_hit(self, item: str) -> bool:
         """

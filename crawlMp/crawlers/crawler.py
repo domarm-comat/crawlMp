@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from crawlMp import CrawlException
+from crawlMp.constants import MODE_SIMPLE
 from crawlMp.results import Results
 
 
@@ -10,13 +11,15 @@ class Crawler(ABC):
     Basic Crawler interface.
     """
 
-    def __init__(self, links: list = None, *args, **kwargs):
+    def __init__(self, links: list = None, mode: str = MODE_SIMPLE, *args, **kwargs):
         """
         :param list links: list of entrypoints
+        :param str mode: Data collection mode
         :param args:
         :param kwargs:
         """
         assert isinstance(links, list) or links is None
+        self.mode = mode
         self.args = args
         self.kwargs = kwargs
         self.metadata = ()

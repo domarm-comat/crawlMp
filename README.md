@@ -5,13 +5,15 @@ It can be used either as a tool for python project or as a command line tool.
 
 # Concept #
 
-This package was written to serve general purpose of crawling various resources. 
+This package was written to serve general purpose of crawling various resources.  
 To achieve that, Crawler interface needs to be adopted.  
 Just by implementing this interface, other Crawlers can be created and used with crawlMp manager.  
 Resource Crawler is then used with CrawlWorker.   
 Every crawler first enters entry point (link) and filter for hits and other links.  
-Results of crawling are then stored in shared list.
-Other workers can pick up and follow link from shared list.
+Results of crawling are then stored in shared list.  
+By default, hits are collected in SIMPLE_MODE only and that's the fastest method to crawl as well.  
+If other metadata related to hit is required, use MODE_EXTENDED.  
+Other workers can pick up and follow link from shared list.  
 For some cases, using only one single process is more effective than spawning multiple processes.  
 CrawlMp does it effectively as well.  
 
@@ -20,11 +22,6 @@ CrawlMp does it effectively as well.
 - Crawler interface
 - File system Crawler with search capabilities
 - scripts, providing easy access from command line 
-
-# Future development #
-
-- Implementing more Crawlers
-- Providing GUI
 
 # Installation #
 
