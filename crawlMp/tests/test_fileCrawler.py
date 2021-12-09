@@ -3,7 +3,7 @@ from copy import copy
 
 import pytest
 
-from crawlMp.constants import MODE_EXTENDED
+from crawlMp.constants import MODE_EXTENDED, MODE_SIMPLE
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.fileCrawler import FileCrawler, FileSearchCrawler
 
@@ -100,3 +100,7 @@ def test_fs_crawl_extended_search(fake_fs, num_proc):
     assert len(results.hits) == 239 == len(df)
     assert len(results.links_followed) == 41
     assert len(results.links_skipped) == 2
+
+
+def test_fs_crawl_extended_search(fake_fs):
+    assert FileCrawler.crawl_modes() == (MODE_SIMPLE, MODE_EXTENDED)

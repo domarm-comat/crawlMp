@@ -59,8 +59,10 @@ class CrawlWorker(Process):
         crawler = self.crawler_class(*self.args, **self.kwargs)
         if self.results.shared:
             self.results.hits_header[:] = crawler.results.hits_header
+            self.results.links_header[:] = crawler.results.links_header
         else:
             self.results.hits_header = crawler.results.hits_header
+            self.results.links_header = crawler.results.links_header
 
         def flush_results(crawler) -> None:
             """

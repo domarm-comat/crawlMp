@@ -10,6 +10,8 @@ class Crawler(ABC):
     """
     Basic Crawler interface.
     """
+    hits_header = None
+    links_header = None
 
     def __init__(self, links: list = None, mode: str = MODE_SIMPLE, *args, **kwargs):
         """
@@ -19,12 +21,20 @@ class Crawler(ABC):
         :param kwargs:
         """
         assert isinstance(links, list) or links is None
+        # headers for hits and links must be defined
+        assert self.hits_header is not None
+        assert self.links_header is not None
+        # crawling mode must be in hits and links headers
+        assert mode in self.hits_header
+        assert mode in self.links_header
         self.mode = mode
         self.args = args
         self.kwargs = kwargs
         self.metadata = ()
         self.entrypoint = None
         self.results = Results()
+        self.results.hits_header = self.hits_header[self.mode]
+        self.results.links_header = self.links_header[self.mode]
         self.links = links if links is not None else []
 
     def __iter__(self):
@@ -100,6 +110,15 @@ class Crawler(ABC):
         Clean allocated resources attached to entrypoint / resource.
         This method must be reimplemented.
         :return: None
+        """
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def crawl_modes() -> tuple:
+        """
+        Get available crawl modes.
+        :return tuple: (Mode1, Mode2, ...)
         """
         ...
 

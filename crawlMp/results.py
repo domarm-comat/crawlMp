@@ -19,7 +19,8 @@ class Results:
         self.hits = share_manager.list() if shared else []
         self.links_followed = share_manager.list() if shared else []
         self.links_skipped = share_manager.list() if shared else []
-        self.hits_header = share_manager.list(("Name",)) if shared else ("Name",)
+        self.hits_header = share_manager.list() if shared else ()
+        self.links_header = share_manager.list() if shared else ()
 
     def reset(self) -> None:
         """

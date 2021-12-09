@@ -5,6 +5,7 @@ import os
 import signal
 import sys
 
+from crawlMp import __version__
 from crawlMp.constants import *
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.fileCrawler import FileSearchCrawler
@@ -12,6 +13,7 @@ from crawlMp.results import Results
 from crawlMp.snippets.output import print_summary, print_list
 
 description = [
+    f"crawlMp v{__version__}",
     "MultiProcess recursive file search.",
     "Default starting location is Current Working Directory.",
     "",
@@ -39,8 +41,12 @@ parser.add_argument("-o", "--output", default=[OUTPUT_LIST], type=str, nargs="+"
                     help=f"Print search result:\r\n  l: list of hits (default)\r\n  s: short summary")
 parser.add_argument("-np", "--processes", default=multiprocessing.cpu_count(), type=int,
                     help="Number of processes used, minimum is 1")
+parser.add_argument("-v", "--version", help="Show crawlMp version", action='store_true')
 parser.add_argument("-bs", "--buffer_size", default=96, type=int, help="Buffer links size, only used if processes > 1")
 args = parser.parse_args()
+
+if args.version:
+    print(f"crawlMp v{__version__}")
 
 
 def on_done(crawler_results: Results) -> None:
@@ -53,5 +59,5 @@ def on_done(crawler_results: Results) -> None:
 
 manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
                   pattern=args.pattern, mode=MODE_SIMPLE)
-signal.signal(signal.SIGINT, lambda *args, **kwargs: manager.stop())
+signal.signal(signal.SIGINT, lambda sig, frame: manager.stop())
 manager.start(on_done)

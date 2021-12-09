@@ -28,11 +28,15 @@ class FileCrawler(Crawler):
         """
         assert max_depth >= 0
         self.max_depth = max_depth
+        self.hits_header = {
+            MODE_SIMPLE: ("Path",),
+            MODE_EXTENDED: ("Path", "Size (b)", "Modified", "Accessed")
+        }
+        self.links_header = {
+            MODE_SIMPLE: ("Path",),
+            MODE_EXTENDED: ("Path",)
+        }
         Crawler.__init__(self, links, mode, args, kwargs)
-        if self.mode == MODE_EXTENDED:
-            self.results.hits_header = ("Path", "Size (b)", "Modified", "Accessed")
-        elif self.mode == MODE_SIMPLE:
-            self.results.hits_header = ("Path",)
 
     def init_entrypoint(self) -> tuple:
         """
@@ -47,15 +51,22 @@ class FileCrawler(Crawler):
                 elif entry.is_dir(follow_symlinks=False):
                     dirs.append(entry.path)
                 else:
+                    # entry is not dir nor file, count it as a skipped link
                     self.results.links_skipped.append(entry.path)
             return dirs, files
         except (PermissionError, OSError):
-            # If for any reason walk can't be finished raise an error
+            # Raise an error if for any reason scandir fails
             raise CrawlException("Entrypoint could not be accessed!")
+
+    @staticmethod
+    def crawl_modes() -> tuple:
+        return MODE_SIMPLE, MODE_EXTENDED
 
     def extract_hits(self) -> list:
         """
         Extract all files in entrypoint
+        Collect only filenames in SIMPLE_MODE
+        Collect filenames, filesize, modification and access time
         :return list: list of files
         """
         _, files = self.metadata
@@ -81,14 +92,14 @@ class FileCrawler(Crawler):
         """
         dirs, _ = self.metadata
         links = []
-        for dirpath in dirs:
-            if self.is_link(dirpath):
-                links.append(dirpath)
+        for dir_path in dirs:
+            if self.is_link(dir_path):
+                links.append(dir_path)
         return links
 
     def is_hit(self, item: str) -> bool:
         """
-        Just return True, since very item is already file.
+        Just return True, since every item is already a file.
         :param str item: Filepath
         :return bool: True
         """

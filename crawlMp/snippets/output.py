@@ -11,7 +11,7 @@ def print_summary(results: Results = None) -> None:
     :return: None
     """
     if results is not None:
-        print(f"Crawled in: {(time() - start_time)} s")
+        print(f"Crawled in: {round(time() - start_time, 2)} s")
         print(f"Number of hits: {len(results.hits)}")
         print(f"Number of followed links: {len(results.links_followed)}")
         print(f"Number of skipped links: {len(results.links_skipped)}")
