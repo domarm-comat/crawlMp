@@ -108,7 +108,7 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, execution_number, num_proc)
 
 
 @pytest.mark.parametrize('execution_number', range(5))
-@pytest.mark.parametrize("pause_offset", [0, 0.1, 0.5])
+@pytest.mark.parametrize("pause_offset", [0.1, 0.5])
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume_stop(fake_fs, pause_offset, execution_number, num_proc):
     done_event = Event()
