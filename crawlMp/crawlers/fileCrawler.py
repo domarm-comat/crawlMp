@@ -2,7 +2,6 @@ import math
 import os
 import re
 from builtins import OSError
-from re import Pattern
 
 from crawlMp import CrawlException
 from crawlMp.constants import MODE_SIMPLE, MODE_EXTENDED
@@ -127,17 +126,17 @@ class FileSearchCrawler(FileCrawler):
     Crawl through filesystem and find all files matching regexp pattern.
     """
 
-    def __init__(self, links: list, pattern: Pattern = None, max_depth: int = math.inf, mode=MODE_SIMPLE, *args,
+    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=MODE_SIMPLE, *args,
                  **kwargs) -> None:
         """
         :param list links: List of paths / entrypoints
-        :param Pattern pattern: regular expression pattern used to search for hits
+        :param str pattern: regular expression pattern used to search for hits
         :param int max_depth: Maximum crawl depth (how deep crawler goes)
         :param str mode: Data collection mode
         :param args: other positional argument
         :param kwargs: other key arguments
         """
-        self.pattern = re.compile(".") if pattern is None else pattern
+        self.pattern = re.compile(pattern)
         FileCrawler.__init__(self, links, max_depth, mode, args, kwargs)
 
     def is_hit(self, item: str) -> bool:
