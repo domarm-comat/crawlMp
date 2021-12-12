@@ -1,5 +1,5 @@
 from multiprocessing import Event
-from threading import Thread
+from threading import Thread, Lock
 from time import sleep
 
 import pytest
@@ -9,13 +9,15 @@ from crawlMp.crawlers.fileCrawler import FileCrawler
 from crawlMp.results import Results
 
 
-@pytest.mark.parametrize('execution_number', range(5))
-def test_crawl_worker(fake_fs, execution_number):
+@pytest.mark.parametrize('factor', range(2, 10, 2))
+def test_crawl_worker(fake_fs, factor):
     sig_pause = Event()
     sig_idle = Event()
     results = Results()
-    job_list = ["/"]
-    worker_1 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, links=None, buffer_size=5)
+    lock_jobs_acq = Lock()
+    job_list = ["/"] * factor
+    worker_1 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, lock_jobs_acq, links=None,
+                           buffer_size=5)
     t1 = Thread(target=worker_1.run)
     t1.start()
     worker_1.wake_signal.set()
@@ -38,8 +40,8 @@ def test_crawl_worker(fake_fs, execution_number):
         worker_1.stop()
         worker_1.wake_signal.set()
     t1.join()
-    worker_2 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, links=None)
+    worker_2 = CrawlWorker(results, FileCrawler, job_list, sig_pause, sig_idle, lock_jobs_acq, links=None)
     assert worker_2.worker_id - worker_1.worker_id == 1
-    assert len(results.hits) == 1811
-    assert len(results.links_followed) == 148
-    assert len(results.links_skipped) == 2
+    assert len(results.hits) == 1811 * factor
+    assert len(results.links_followed) == 148 * factor
+    assert len(results.links_skipped) == 2 * factor

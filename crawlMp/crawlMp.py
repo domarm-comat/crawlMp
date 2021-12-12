@@ -1,10 +1,9 @@
 from multiprocessing import Lock, Event
 from threading import Thread
-from time import sleep
 from typing import Any, Callable, Type
 
 # Create global Process Manager
-from crawlMp import share_manager
+from crawlMp import share_manager, CrawlException
 from crawlMp.crawlWorker import CrawlWorker
 from crawlMp.crawlers.crawler import Crawler
 from crawlMp.results import Results
@@ -39,6 +38,7 @@ class CrawlMp:
         self.sig_resumed = Event()
         self.sig_paused = Event()
         self.sig_worker_idle = Event()
+        self.lock_jobs_acq = Lock()
         self.results = Results(shared=True)
 
     def _init_workers(self) -> None:
@@ -49,10 +49,9 @@ class CrawlMp:
         """
         for i in range(self.num_proc):
             worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, self.sig_paused,
-                                 self.sig_worker_idle, links=None, *self.args, **self.kwargs)
+                                 self.sig_worker_idle, self.lock_jobs_acq, links=None, *self.args, **self.kwargs)
             self.workers.append(worker)
             worker.start()
-            worker.wake_signal.set()
 
             if not self.running:
                 return
@@ -73,7 +72,8 @@ class CrawlMp:
         """
         self.running = False
         if self.is_paused():
-            self.resume()
+            self.sig_paused.clear()
+            self.sig_resumed.set()
 
     def _start_mp(self, callback: Callable = None) -> Results:
         """
@@ -81,7 +81,6 @@ class CrawlMp:
         :param Callable callback: callback function
         :return Results: results
         """
-        self.running = True
         # Spawn and start all workers
         self._init_workers()
         while True:
@@ -112,6 +111,7 @@ class CrawlMp:
                 elif not self.running or (idle_workers == self.num_proc and jobs_count == 0):
                     # All workers are idle and job_list is empty
                     # All jobs are finished, close all workers
+                    self.running = False
                     self.stop_workers()
                     break
 
@@ -131,7 +131,6 @@ class CrawlMp:
         :param Callable callback: callback function
         :return Results: results
         """
-        self.running = True
 
         def flush_results(crawler) -> None:
             """
@@ -145,7 +144,7 @@ class CrawlMp:
 
         iterations = 0
         crawl = None
-        for crawl in self.crawler_class(self.jobs_list[:], *self.args, **self.kwargs):
+        for crawl in self.crawler_class(self.jobs_list, *self.args, **self.kwargs):
             if not self.running:
                 break
             elif self.sig_paused.is_set():
@@ -154,6 +153,7 @@ class CrawlMp:
             if iterations % self.buffer_size == 0:
                 flush_results(crawl)
 
+        self.running = False
         if crawl is not None:
             self.results.hits_header = crawl.results.hits_header
             # Flush rest of the results
@@ -171,16 +171,23 @@ class CrawlMp:
         :param list links: New links to crawl
         :return: None
         """
+        if not self.running:
+            raise CrawlException("Crawler is already finished.")
         self.jobs_list += links
+        for worker in self.workers:
+            # Wake up all workers again
+            worker.wake_signal.set()
 
     def start(self, callback: Callable = None, reset_results: bool = True) -> Results:
         """
-        Start Manager and it's Workers
+        Start crawl managers.
         If callback is set, then start crawlers in the Thread and call callback in the end.
         :param bool reset_results: Reset previous results
         :param callable callback: Callable
         :return: CrawlWorker or None
         """
+        self.running = True
+
         if reset_results:
             self.results.reset()
         start_method = self._start_mp if self.num_proc > 1 else self._start_sp
@@ -191,23 +198,21 @@ class CrawlMp:
             assert callable(callback)
             Thread(target=start_method, args=(callback,)).start()
 
+            for worker in self.workers:
+                # Block until all workers are idle
+                worker.wake_signal.wait()
+
     def pause(self) -> None:
         """
         Pause crawling until resume
         :return: None
         """
-        if self.num_proc > 1:
-            while len(self.workers) != self.num_proc:
-                # Wait until all workers are initialized
-                sleep(0.1)
-
         self.sig_resumed.clear()
         self.sig_paused.set()
 
-        if self.num_proc > 1:
-            for worker in self.workers:
-                # Block until all workers are idle
-                worker.sig_idle.wait()
+        for worker in self.workers:
+            # Block until all workers are idle
+            worker.sig_idle.wait()
 
     def resume(self) -> None:
         """
@@ -217,10 +222,9 @@ class CrawlMp:
         self.sig_paused.clear()
         self.sig_resumed.set()
 
-        if self.num_proc > 1:
-            for worker in self.workers:
-                # Wake up all workers again
-                worker.wake_signal.set()
+        for worker in self.workers:
+            # Wake up all workers again
+            worker.wake_signal.set()
 
     def is_paused(self) -> bool:
         """

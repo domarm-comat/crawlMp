@@ -21,16 +21,16 @@ class CrawlWorker(Process):
     Worker process, which will run Crawler.
     """
     id_gen = worker_id_gen()
-    jobs_acquiring_lock = Lock()
 
     def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: list, sig_pause: Event,
-                 sig_idle: Event, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
+                 sig_idle: Event, lock_jobs_acq: Lock, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
         """
         :param Result results: results object
         :param crawler_class: Crawler class
         :param list jobs_list: list of links
         :param Event sig_pause: Pause signal
         :param Event sig_idle: Idle signal
+        :param Lock lock_jobs_acq: Lock for job acquisition
         :param int buffer_size: Size of links buffer
         :param args:
         :param kwargs:
@@ -46,6 +46,7 @@ class CrawlWorker(Process):
         self.jobs_list = jobs_list
         self.sig_pause = sig_pause
         self.sig_idle = sig_idle
+        self.lock_jobs_acq = lock_jobs_acq
         self.args = args
         self.kwargs = kwargs
 
@@ -64,17 +65,19 @@ class CrawlWorker(Process):
             self.results.hits_header = crawler.results.hits_header
             self.results.links_header = crawler.results.links_header
 
-        def flush_results(crawler) -> None:
+        def flush_results(worker_crawler) -> None:
             """
             Flush crawler results into shared worker results.
             :return: None
             """
-            self.results.hits += crawler.results.hits
-            self.results.links_followed += crawler.results.links_followed
-            self.results.links_skipped += crawler.results.links_skipped
-            crawler.results.reset()
+            self.results.hits += worker_crawler.results.hits
+            self.results.links_followed += worker_crawler.results.links_followed
+            self.results.links_skipped += worker_crawler.results.links_skipped
+            worker_crawler.results.reset()
 
         iterations = 0
+        # Set worker as active
+        self.wake_signal.set()
         # Crawl until wake_signal is high
         while self.wake_signal.wait():
             if self.stop_signal.is_set():
@@ -98,7 +101,7 @@ class CrawlWorker(Process):
             elif self.jobs_list:
                 # Crawler has no links to follow, but there are some links already in job_queue
                 # Fill crawler.links from jobs_list of buffer_size
-                with self.jobs_acquiring_lock:
+                with self.lock_jobs_acq:
                     crawler.links += self.jobs_list[:self.buffer_size]
                     # Remove fetched links from jobs_list
                     del self.jobs_list[:self.buffer_size]

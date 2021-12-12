@@ -102,5 +102,5 @@ def test_fs_crawl_extended_search(fake_fs, num_proc):
     assert len(results.links_skipped) == 2
 
 
-def test_fs_crawl_extended_search(fake_fs):
+def test_fs_crawl_modes(fake_fs):
     assert FileCrawler.crawl_modes() == (MODE_SIMPLE, MODE_EXTENDED)
