@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from multiprocessing.managers import ListProxy
 from typing import Any
 
 from crawlMp import CrawlException
@@ -20,7 +21,7 @@ class Crawler(ABC):
         :param args:
         :param kwargs:
         """
-        assert isinstance(links, list) or links is None
+        assert isinstance(links, (list, ListProxy)) or links is None
         # headers for hits and links must be defined
         assert self.hits_header is not None
         assert self.links_header is not None
