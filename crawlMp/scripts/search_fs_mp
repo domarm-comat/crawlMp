@@ -9,7 +9,6 @@ from crawlMp import __version__
 from crawlMp.constants import *
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.fileCrawler import FileSearchCrawler
-from crawlMp.results import Results
 from crawlMp.snippets.output import print_summary, print_list
 
 description = [
@@ -49,12 +48,12 @@ if args.version:
     print(f"crawlMp v{__version__}")
 
 
-def on_done(crawler_results: Results) -> None:
+def on_done(m: CrawlMp) -> None:
     for output_mode in args.output:
         if output_mode == OUTPUT_SUMMARY:
-            print_summary(crawler_results)
+            print_summary(m.results)
         elif output_mode == OUTPUT_LIST:
-            print_list(crawler_results)
+            print_list(m.results)
 
 
 manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,

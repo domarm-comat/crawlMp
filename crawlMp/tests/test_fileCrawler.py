@@ -33,11 +33,11 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
     }
 
     manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1, max_depth=max_depth)
-    results = manager.start()
+    manager.start()
 
-    assert len(results.hits) == expected[test_id][0]
-    assert len(results.links_followed) == expected[test_id][1]
-    assert len(results.links_skipped) == expected[test_id][2]
+    assert len(manager.results.hits) == expected[test_id][0]
+    assert len(manager.results.links_followed) == expected[test_id][1]
+    assert len(manager.results.links_skipped) == expected[test_id][2]
 
 
 @pytest.mark.parametrize("links", ["", "not_list", "/not/list"])
@@ -51,14 +51,14 @@ def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
     test_id = request.node.callspec.id
 
     manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1)
-    results = manager.start()
+    manager.start()
 
-    assert len(results.hits) == 0
-    assert len(results.links_followed) == 0
+    assert len(manager.results.hits) == 0
+    assert len(manager.results.links_followed) == 0
     if test_id == "links2":
-        assert len(results.links_skipped) == 2
+        assert len(manager.results.links_skipped) == 2
     else:
-        assert len(results.links_skipped) == 1
+        assert len(manager.results.links_skipped) == 1
 
 
 @pytest.mark.parametrize("depth", [1, math.inf, 2, 3], ids=["d0", "d1", "d2", "d3"])
@@ -84,22 +84,22 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
         "r3-d3": (0, 81, 2),
     }
     manager = CrawlMp(FileSearchCrawler, links=["/"], num_proc=1, pattern=pattern, max_depth=depth)
-    results = manager.start()
+    manager.start()
 
-    assert len(results.hits) == expected[test_id][0]
-    assert len(results.links_followed) == expected[test_id][1]
-    assert len(results.links_skipped) == expected[test_id][2]
+    assert len(manager.results.hits) == expected[test_id][0]
+    assert len(manager.results.links_followed) == expected[test_id][1]
+    assert len(manager.results.links_skipped) == expected[test_id][2]
 
 
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_fs_crawl_extended_search(fake_fs, num_proc):
     manager = CrawlMp(FileSearchCrawler, links=["/"], num_proc=num_proc, pattern="\.py$", max_depth=2,
                       mode=MODE_EXTENDED)
-    results = manager.start()
-    df = results.dataframe()
-    assert len(results.hits) == 239 == len(df)
-    assert len(results.links_followed) == 41
-    assert len(results.links_skipped) == 2
+    manager.start()
+    df = manager.results.dataframe()
+    assert len(manager.results.hits) == 239 == len(df)
+    assert len(manager.results.links_followed) == 41
+    assert len(manager.results.links_skipped) == 2
 
 
 def test_fs_crawl_modes(fake_fs):

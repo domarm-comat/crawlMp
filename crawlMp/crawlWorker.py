@@ -107,6 +107,7 @@ class CrawlWorker(Process):
                     del self.jobs_list[:self.buffer_size]
             else:
                 # job_queue is empty
+                flush_results(crawler)
                 # set wake_signal to low
                 self.wake_signal.clear()
                 # set worker_idle_signal to high
