@@ -129,12 +129,6 @@ class CrawlMp:
                     self.running = False
                     self.stop_workers()
                     break
-            # elif self.stopped or not self.running:
-            #     # All workers are idle and job_list is empty
-            #     # All jobs are finished, close all workers
-            #     self.running = False
-            #     self.stop_workers()
-            #     break
 
         for worker in self.workers:
             # Wait until all workers are finished

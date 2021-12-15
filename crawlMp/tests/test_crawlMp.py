@@ -63,20 +63,6 @@ def test_crawlMp_buffer_size_fail(fake_fs, buff_size):
         CrawlMp(FileCrawler, links=["/"], buffer_size=buff_size)
 
 
-@pytest.mark.parametrize('factor', range(2, 10, 2))
-@pytest.mark.parametrize("num_proc", [1, 2])
-def test_crawlMp_append_link(fake_fs, factor, num_proc):
-    done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"] * factor, num_proc=num_proc)
-    manager.start(callback=lambda results: done_cb(results, done_event))
-    manager.append_links(["/"] * factor)
-    done_event.wait(timeout=60)
-    assert done_event.is_set()
-    assert len(manager.results.hits) == 1811 * (2 * factor)
-    assert len(manager.results.links_followed) == 148 * (2 * factor)
-    assert len(manager.results.links_skipped) == 2 * (2 * factor)
-
-
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_fail(fake_fs, num_proc):
     done_event = Event()
