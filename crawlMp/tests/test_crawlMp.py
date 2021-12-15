@@ -18,7 +18,7 @@ def test_crawlMp_num_proc(fake_fs, num_proc):
     manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
     manager.start(callback=lambda m: done_cb(m, done_event))
 
-    done_event.wait()
+    done_event.wait(timeout=60)
     assert done_event.is_set()
 
     assert len(manager.results.hits) == 1811
