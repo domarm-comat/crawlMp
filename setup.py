@@ -14,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/domarm-comat/crawlMp",
     packages=setuptools.find_packages(),
-    package_data={'crawlMp.tests': ['fs_files.txt']},
+    package_data={'crawlMp.tests': ['fs_files.txt', 'fs_win_files.txt']},
     scripts=['crawlMp/scripts/search_fs_mp'],
     classifiers=[
         "Programming Language :: Python :: 3",

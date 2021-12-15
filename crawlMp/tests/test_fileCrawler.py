@@ -34,7 +34,6 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
 
     manager = CrawlMp(FileCrawler, links=copy(links), num_proc=1, max_depth=max_depth)
     manager.start()
-
     assert len(manager.results.hits) == expected[test_id][0]
     assert len(manager.results.links_followed) == expected[test_id][1]
     assert len(manager.results.links_skipped) == expected[test_id][2]

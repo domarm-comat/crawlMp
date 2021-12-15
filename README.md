@@ -13,9 +13,7 @@ Every crawler first enters entry point (link) and filter for hits and other link
 Results of crawling are then stored in shared list.  
 By default, hits are collected in SIMPLE_MODE only and that's the fastest method to crawl as well.  
 If other metadata related to hit is required, use MODE_EXTENDED.  
-Other workers can pick up and follow link from shared list.  
-For some cases, using only one single process is more effective than spawning multiple processes.  
-CrawlMp does it effectively as well.  
+Other workers can pick up and follow link(s) from shared list.  
 
 # What is in the package #
 
