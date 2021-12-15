@@ -96,7 +96,12 @@ class CrawlMp:
         self._init_workers()
         while True:
             idle_workers = 0
-            self.sig_worker_idle.wait(timeout=0.1)
+            if not self.sig_worker_idle.wait(timeout=0.1) and self.stopped or not self.running:
+                # All workers are idle and job_list is empty
+                # All jobs are finished, close all workers
+                self.running = False
+                self.stop_workers()
+                break
             # If one of the Workers is Idle
             # Count number of Idle workers
             if len(self.jobs_list) > 0:
@@ -108,10 +113,10 @@ class CrawlMp:
                 # Clear worker idle signal
                 self.sig_worker_idle.clear()
                 continue
-            else:
-                for worker in self.workers:
-                    if not worker.wake_signal.is_set():
-                        idle_workers += 1
+
+            for worker in self.workers:
+                if not worker.wake_signal.is_set():
+                    idle_workers += 1
             if self.is_paused():
                 self.sig_resumed.wait()
             elif not self.sig_batch_done.is_set() and idle_workers == self.num_proc and len(self.jobs_list) == 0:
@@ -124,12 +129,12 @@ class CrawlMp:
                     self.running = False
                     self.stop_workers()
                     break
-            elif self.stopped or not self.running:
-                # All workers are idle and job_list is empty
-                # All jobs are finished, close all workers
-                self.running = False
-                self.stop_workers()
-                break
+            # elif self.stopped or not self.running:
+            #     # All workers are idle and job_list is empty
+            #     # All jobs are finished, close all workers
+            #     self.running = False
+            #     self.stop_workers()
+            #     break
 
         for worker in self.workers:
             # Wait until all workers are finished
