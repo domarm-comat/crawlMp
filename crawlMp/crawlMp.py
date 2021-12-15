@@ -107,6 +107,7 @@ class CrawlMp:
                         worker.wake_signal.set()
                 # Clear worker idle signal
                 self.sig_worker_idle.clear()
+                continue
             else:
                 for worker in self.workers:
                     if not worker.wake_signal.is_set():
