@@ -16,7 +16,7 @@ def done_cb(_, done_event):
 def test_crawlMp_num_proc(fake_fs, num_proc):
     done_event = Event()
     manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
-    manager.start(callback=lambda results: done_cb(results, done_event))
+    manager.start(callback=lambda m: done_cb(m, done_event))
 
     done_event.wait()
     assert done_event.is_set()
@@ -85,6 +85,26 @@ def test_crawlMp_append_fail(fake_fs, num_proc):
     sleep(2)
     with pytest.raises(CrawlException):
         manager.append_links(["/"])
+
+
+def batch_done_cb(manager):
+    if manager.batch_id == 2:
+        manager.stop()
+
+@pytest.mark.parametrize("num_proc", [1, 2])
+def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
+    done_event = Event()
+    manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc, keepalive=False, on_batch_done=batch_done_cb)
+    manager.start(callback=lambda results: done_cb(results, done_event))
+    sleep(2)
+    manager.append_links(["/"])
+
+    done_event.wait(timeout=60)
+    assert done_event.is_set()
+
+    assert len(manager.results.hits) == 3622
+    assert len(manager.results.links_followed) == 296
+    assert len(manager.results.links_skipped) == 4
 
 
 @pytest.mark.parametrize('factor', range(2, 10, 2))

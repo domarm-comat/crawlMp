@@ -75,7 +75,6 @@ class CrawlWorker(Process):
             self.results.links_skipped += worker_crawler.results.links_skipped
             worker_crawler.results.reset()
 
-        iterations = 0
         # Set worker as active
         self.wake_signal.set()
         # Crawl until wake_signal is high
@@ -95,9 +94,6 @@ class CrawlWorker(Process):
                     self.jobs_list += crawler.links[self.buffer_size:]
                     # Remove those links from crawler links
                     del crawler.links[self.buffer_size:]
-                iterations += 1
-                if iterations % self.buffer_size == 0:
-                    flush_results(crawler)
             elif self.jobs_list:
                 # Crawler has no links to follow, but there are some links already in job_queue
                 # Fill crawler.links from jobs_list of buffer_size
@@ -107,16 +103,16 @@ class CrawlWorker(Process):
                     del self.jobs_list[:self.buffer_size]
             else:
                 # job_queue is empty
+                flush_results(crawler)
                 # set wake_signal to low
                 self.wake_signal.clear()
                 # set worker_idle_signal to high
                 self.sig_idle.set()
-
         flush_results(crawler)
 
     def stop(self) -> None:
         """
         Stop worker
-        :return:
+        :return: None
         """
         self.stop_signal.set()
