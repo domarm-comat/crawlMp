@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from multiprocessing.managers import ListProxy
 from typing import Any
 
-from crawlMp import CrawlException
+from crawlMp import CrawlException, ActionException
 from crawlMp.constants import MODE_SIMPLE
 from crawlMp.results import Results
 
@@ -14,7 +14,7 @@ class Crawler(ABC):
     hits_header = None
     links_header = None
 
-    def __init__(self, links: list = None, mode: str = MODE_SIMPLE, *args, **kwargs):
+    def __init__(self, links: list = None, mode: str = MODE_SIMPLE, actions: tuple = None, *args, **kwargs):
         """
         :param list links: list of entrypoints
         :param str mode: Data collection mode
@@ -28,6 +28,7 @@ class Crawler(ABC):
         # crawling mode must be in hits and links headers
         assert mode in self.hits_header
         assert mode in self.links_header
+        self.actions = actions
         self.mode = mode
         self.args = args
         self.kwargs = kwargs
@@ -57,6 +58,13 @@ class Crawler(ABC):
             # If crawl fails for any reason, don't follow that link
             self.results.links_skipped.append(next_link)
         return self
+
+    def _do_actions(self, hit):
+        for action in self.actions:
+            try:
+                hit = action.do(hit)
+            except ActionException:
+                break
 
     @abstractmethod
     def init_entrypoint(self) -> tuple:

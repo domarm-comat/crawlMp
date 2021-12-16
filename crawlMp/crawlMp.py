@@ -20,7 +20,7 @@ class CrawlMp:
     batch_id = 0
 
     def __init__(self, crawler_class: Type[Crawler], links: list, keepalive=True, on_batch_done: Callable = None,
-                 num_proc: int = 4, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
+                 num_proc: int = 4, buffer_size: int = 96, actions: tuple = None, *args: Any, **kwargs: Any) -> None:
         """
         :param crawler_class: Crawler class to use with Worker
         :param list links: List of entrypoints
@@ -49,6 +49,7 @@ class CrawlMp:
         self.sig_worker_idle = Event()
         self.sig_batch_done = Event()
         self.lock_jobs_acq = Lock()
+        self.actions = [] if actions is None else actions
         self.results = Results(shared=True)
 
     def _init_workers(self) -> None:
@@ -59,7 +60,8 @@ class CrawlMp:
         """
         for i in range(self.num_proc):
             worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, self.sig_paused,
-                                 self.sig_worker_idle, self.lock_jobs_acq, links=None, *self.args, **self.kwargs)
+                                 self.sig_worker_idle, self.lock_jobs_acq, actions=self.actions, links=None, *self.args,
+                                 **self.kwargs)
             self.workers.append(worker)
             worker.start()
 

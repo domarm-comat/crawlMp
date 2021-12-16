@@ -77,6 +77,7 @@ def batch_done_cb(manager):
     if manager.batch_id == 2:
         manager.stop()
 
+
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
     done_event = Event()

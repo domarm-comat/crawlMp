@@ -6,6 +6,7 @@ import signal
 import sys
 
 from crawlMp import __version__
+from crawlMp.actions.copy_action import CopyAction
 from crawlMp.constants import *
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.fileCrawler import FileSearchCrawler
@@ -56,7 +57,8 @@ def on_done(m: CrawlMp) -> None:
             print_list(m.results)
 
 
+actions = (CopyAction("/home/domarm/cpzips"),)
 manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
-                  pattern=args.pattern, mode=MODE_SIMPLE)
+                  pattern=args.pattern, mode=MODE_SIMPLE, actions=actions)
 signal.signal(signal.SIGINT, lambda sig, frame: manager.stop())
 manager.start(on_done)

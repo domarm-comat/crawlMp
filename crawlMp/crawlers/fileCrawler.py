@@ -17,7 +17,8 @@ class FileCrawler(Crawler):
     MODE_EXTENDED is slower, because os.stat has to be called for every hit.
     """
 
-    def __init__(self, links: list, max_depth: int = math.inf, mode: str = MODE_SIMPLE, *args, **kwargs) -> None:
+    def __init__(self, links: list, max_depth: int = math.inf, mode: str = MODE_SIMPLE, actions: tuple = None, *args,
+                 **kwargs) -> None:
         """
         Crawl is finished when links list is empty.
         :param list links: List of paths / entrypoints
@@ -27,6 +28,7 @@ class FileCrawler(Crawler):
         :param kwargs: other key arguments
         """
         assert max_depth >= 0
+        self.actions = actions
         self.max_depth = max_depth
         self.hits_header = {
             MODE_SIMPLE: ("Path",),
@@ -36,7 +38,7 @@ class FileCrawler(Crawler):
             MODE_SIMPLE: ("Path",),
             MODE_EXTENDED: ("Path",)
         }
-        Crawler.__init__(self, links, mode, args, kwargs)
+        Crawler.__init__(self, links, mode, actions, args, kwargs)
 
     def init_entrypoint(self) -> tuple:
         """
@@ -73,8 +75,9 @@ class FileCrawler(Crawler):
         hits = []
         for filename, filepath in files:
             if self.is_hit(filename):
+                self._do_actions(filepath)
                 if self.mode == MODE_SIMPLE:
-                    hits.append(filepath, )
+                    hits.append((filepath,))
                 elif self.mode == MODE_EXTENDED:
                     try:
                         file_stat = os.stat(filepath)
@@ -126,8 +129,8 @@ class FileSearchCrawler(FileCrawler):
     Crawl through filesystem and find all files matching regexp pattern.
     """
 
-    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=MODE_SIMPLE, *args,
-                 **kwargs) -> None:
+    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=MODE_SIMPLE,
+                 actions: tuple = None, *args, **kwargs) -> None:
         """
         :param list links: List of paths / entrypoints
         :param str pattern: regular expression pattern used to search for hits
@@ -137,7 +140,7 @@ class FileSearchCrawler(FileCrawler):
         :param kwargs: other key arguments
         """
         self.pattern = re.compile(pattern)
-        FileCrawler.__init__(self, links, max_depth, mode, args, kwargs)
+        FileCrawler.__init__(self, links, max_depth, mode, actions, args, kwargs)
 
     def is_hit(self, item: str) -> bool:
         """
