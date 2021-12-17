@@ -75,7 +75,9 @@ class FileCrawler(Crawler):
         hits = []
         for filename, filepath in files:
             if self.is_hit(filename):
-                self._do_actions(filepath)
+                if not self.execute_actions(filepath):
+                    # Skip hit, if not all actions were successful
+                    continue
                 if self.mode == MODE_SIMPLE:
                     hits.append((filepath,))
                 elif self.mode == MODE_EXTENDED:

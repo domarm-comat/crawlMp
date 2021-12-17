@@ -135,5 +135,5 @@ def test_crawlMp_pause_resume_stop(fake_fs, factor, pause_offset, num_proc):
     manager.pause()
     sleep(pause_offset)
     manager.stop()
-    done_event.wait(timeout=3)
+    done_event.wait(timeout=5)
     assert done_event.is_set()

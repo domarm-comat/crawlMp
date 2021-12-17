@@ -49,7 +49,7 @@ class CrawlMp:
         self.sig_worker_idle = Event()
         self.sig_batch_done = Event()
         self.lock_jobs_acq = Lock()
-        self.actions = [] if actions is None else actions
+        self.actions = actions
         self.results = Results(shared=True)
 
     def _init_workers(self) -> None:

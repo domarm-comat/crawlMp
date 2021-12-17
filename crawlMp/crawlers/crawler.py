@@ -28,7 +28,7 @@ class Crawler(ABC):
         # crawling mode must be in hits and links headers
         assert mode in self.hits_header
         assert mode in self.links_header
-        self.actions = actions
+        self.actions = () if actions is None else actions
         self.mode = mode
         self.args = args
         self.kwargs = kwargs
@@ -59,12 +59,20 @@ class Crawler(ABC):
             self.results.links_skipped.append(next_link)
         return self
 
-    def _do_actions(self, hit):
+    def execute_actions(self, hit: Any) -> bool:
+        """
+        Execute all actions sequence on the given hit.
+        Actions are organized in a pipeline, feeding output of one action to the next action.
+        Return True if whole pipeline was successfully executed.
+        :param Any hit: input hit
+        :return:
+        """
         for action in self.actions:
             try:
                 hit = action.do(hit)
             except ActionException:
-                break
+                return False
+        return True
 
     @abstractmethod
     def init_entrypoint(self) -> tuple:
