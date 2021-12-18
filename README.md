@@ -92,7 +92,7 @@ manager.start(on_done)
 
 # Code coverage #
 
-Run pytests and code coverage by executing
+Run pytests and code coverage by executing following commands
 ```shell
 coverage run -m pytest --rootdir ./crawlMp/tests/
 coverage report > coverage.txt
