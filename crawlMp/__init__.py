@@ -1,4 +1,4 @@
-__version__ = "0.2.7"
+__version__ = "0.3.0"
 
 from multiprocessing import Manager
 from time import time
@@ -8,4 +8,8 @@ share_manager = Manager()
 
 
 class CrawlException(Exception):
+    ...
+
+
+class ActionException(Exception):
     ...

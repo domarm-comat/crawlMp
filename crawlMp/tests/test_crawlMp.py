@@ -77,6 +77,7 @@ def batch_done_cb(manager):
     if manager.batch_id == 2:
         manager.stop()
 
+
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
     done_event = Event()
@@ -134,5 +135,5 @@ def test_crawlMp_pause_resume_stop(fake_fs, factor, pause_offset, num_proc):
     manager.pause()
     sleep(pause_offset)
     manager.stop()
-    done_event.wait(timeout=3)
+    done_event.wait(timeout=5)
     assert done_event.is_set()

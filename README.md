@@ -9,16 +9,17 @@ This package was written to serve general purpose of crawling various resources.
 To achieve that, Crawler interface needs to be adopted.  
 Just by implementing this interface, other Crawlers can be created and used with crawlMp manager.  
 Resource Crawler is then used with CrawlWorker.   
-Every crawler first enters entry point (link) and filter for hits and other links.  
-Results of crawling are then stored in shared list.  
+Every crawler first enters entry point (link) and extract hits and links.  
+If specified, pipeline of actions is executed on every hit.
 By default, hits are collected in SIMPLE_MODE only and that's the fastest method to crawl as well.  
 If other metadata related to hit is required, use MODE_EXTENDED.  
-Other workers can pick up and follow link(s) from shared list.  
+Other workers can pick up and follow link(s) from shared list asynchronously.  
 
 # What is in the package #
 
 - Crawler interface
-- File system Crawler with search capabilities
+- Action interface
+- File system Crawler, Actions with search capabilities
 - scripts, providing easy access from command line 
 
 # Installation #
@@ -63,10 +64,29 @@ from crawlMp.crawlers.fileCrawler import FileSearchCrawler
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.snippets.output import print_summary
 
-def on_done(results):
-  print_summary(results)
+def on_done(manager):
+  print_summary(manager.results)
 
 manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\.zip$")
+manager.start(on_done)
+```
+
+### Python code (actions) ###
+
+```python
+from crawlMp.crawlers.fileCrawler import FileSearchCrawler
+from crawlMp.crawlMp import CrawlMp
+from crawlMp.snippets.output import print_summary
+from crawlMp.actions.fs.copy import CopyAction
+from crawlMp.actions.fs.remove import RemoveAction
+
+def on_done(manager):
+  print_summary(manager.results)
+
+# Copy all found zip files and then remove them
+# It's just to demonstrate usage of actions
+actions = (CopyAction(target_dir="/home/domarm/zip_files"), RemoveAction())
+manager = CrawlMp(FileSearchCrawler, links=["/home"], num_proc=8, pattern="\.zip$", actions=actions)
 manager.start(on_done)
 ```
 

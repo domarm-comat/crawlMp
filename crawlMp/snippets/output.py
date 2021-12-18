@@ -27,4 +27,4 @@ def print_list(results: Results = None) -> None:
     :return: None
     """
     if len(results.hits) > 0:
-        print(*[result for result in results.hits], sep="\n")
+        print(*[result[0] for result in results.hits], sep="\n")

@@ -6,6 +6,7 @@ import signal
 import sys
 
 from crawlMp import __version__
+from crawlMp.actions.fs.copy import CopyAction
 from crawlMp.constants import *
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.fileCrawler import FileSearchCrawler
