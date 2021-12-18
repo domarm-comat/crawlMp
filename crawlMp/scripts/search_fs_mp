@@ -52,7 +52,7 @@ if args.version:
 def on_done(m: CrawlMp) -> None:
     for output_mode in args.output:
         if output_mode == OUTPUT_SUMMARY:
-            print_summary(m.results)
+            print_summary(m.results, m.start_time)
         elif output_mode == OUTPUT_LIST:
             print_list(m.results)
 

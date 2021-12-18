@@ -1,5 +1,6 @@
 from multiprocessing import Lock, Event
 from threading import Thread
+from time import time
 from typing import Any, Callable, Type
 
 # Create global Process Manager
@@ -18,6 +19,7 @@ class CrawlMp:
     """
     stopped = False
     batch_id = 0
+    start_time = 0
 
     def __init__(self, crawler_class: Type[Crawler], links: list, keepalive=True, on_batch_done: Callable = None,
                  num_proc: int = 4, buffer_size: int = 96, actions: tuple = None, *args: Any, **kwargs: Any) -> None:
@@ -142,6 +144,7 @@ class CrawlMp:
             return self
 
     def _init_start(self):
+        self.start_time = time()
         self.running = True
         self.stopped = False
         self.sig_resumed.clear()
