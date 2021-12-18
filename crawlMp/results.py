@@ -1,3 +1,5 @@
+from time import time
+
 from pandas import DataFrame
 
 from crawlMp import share_manager
@@ -7,6 +9,8 @@ class Results:
     """
     Object to aggregate all results and errors.
     """
+    start_time = time()
+    done_time = 0
 
     def __init__(self, shared=False) -> None:
         """

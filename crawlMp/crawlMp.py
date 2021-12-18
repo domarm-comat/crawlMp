@@ -19,7 +19,6 @@ class CrawlMp:
     """
     stopped = False
     batch_id = 0
-    start_time = 0
 
     def __init__(self, crawler_class: Type[Crawler], links: list, keepalive=True, on_batch_done: Callable = None,
                  num_proc: int = 4, buffer_size: int = 96, actions: tuple = None, *args: Any, **kwargs: Any) -> None:
@@ -137,6 +136,8 @@ class CrawlMp:
         for worker in self.workers:
             # Wait until all workers are finished
             worker.join()
+
+        self.results.done_time = time()
         # Call the Callback if it's set
         if callback is not None:
             callback(self)
@@ -144,7 +145,7 @@ class CrawlMp:
             return self
 
     def _init_start(self):
-        self.start_time = time()
+        self.results.start_time = time()
         self.running = True
         self.stopped = False
         self.sig_resumed.clear()
