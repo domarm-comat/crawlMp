@@ -2,11 +2,11 @@ Name                                Stmts   Miss  Cover
 -------------------------------------------------------
 crawlMp/__init__.py                     9      0   100%
 crawlMp/actions/__init__.py             0      0   100%
-crawlMp/actions/action.py               8      1    88%
+crawlMp/actions/action.py               9      1    89%
 crawlMp/actions/fs/__init__.py          0      0   100%
-crawlMp/actions/fs/copy.py             15      4    73%
-crawlMp/actions/fs/move.py             12      2    83%
-crawlMp/actions/fs/remove.py           14      4    71%
+crawlMp/actions/fs/copy.py             20      6    70%
+crawlMp/actions/fs/move.py             18      4    78%
+crawlMp/actions/fs/remove.py           14      1    93%
 crawlMp/constants.py                    7      0   100%
 crawlMp/crawlMp.py                    117      2    98%
 crawlMp/crawlWorker.py                 59      2    97%
@@ -19,9 +19,9 @@ crawlMp/snippets/output.py             13      0   100%
 crawlMp/tests/__init__.py               0      0   100%
 crawlMp/tests/conftest.py              30      3    90%
 crawlMp/tests/test_crawlMp.py         103      0   100%
-crawlMp/tests/test_crawlWorker.py      41      0   100%
+crawlMp/tests/test_crawlWorker.py      41      2    95%
 crawlMp/tests/test_fileCrawler.py      51      0   100%
-crawlMp/tests/test_fs_actions.py       26      0   100%
+crawlMp/tests/test_fs_actions.py       46      0   100%
 crawlMp/tests/test_snippets.py         31      0   100%
 -------------------------------------------------------
-TOTAL                                 692     44    94%
+TOTAL                                 724     47    94%

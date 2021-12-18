@@ -57,8 +57,7 @@ def on_done(m: CrawlMp) -> None:
             print_list(m.results)
 
 
-actions = (CopyAction("/home/domarm/cpzips"),)
 manager = CrawlMp(FileSearchCrawler, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
-                  pattern=args.pattern, mode=MODE_SIMPLE, actions=actions)
+                  pattern=args.pattern, mode=MODE_SIMPLE)
 signal.signal(signal.SIGINT, lambda sig, frame: manager.stop())
 manager.start(on_done)
