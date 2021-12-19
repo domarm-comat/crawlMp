@@ -8,7 +8,7 @@ from crawlMp.constants import MODE_SIMPLE, MODE_EXTENDED
 from crawlMp.crawlers.crawler import Crawler
 
 
-class FileCrawler(Crawler):
+class CrawlerFs(Crawler):
     """
     Crawl through filesystem and find all files.
     Supporting two collection modes:
@@ -126,7 +126,7 @@ class FileCrawler(Crawler):
         pass
 
 
-class FileSearchCrawler(FileCrawler):
+class CrawlerSearchFs(CrawlerFs):
     """
     Crawl through filesystem and find all files matching regexp pattern.
     """
@@ -142,7 +142,7 @@ class FileSearchCrawler(FileCrawler):
         :param kwargs: other key arguments
         """
         self.pattern = re.compile(pattern)
-        FileCrawler.__init__(self, links, max_depth, mode, actions, args, kwargs)
+        CrawlerFs.__init__(self, links, max_depth, mode, actions, args, kwargs)
 
     def is_hit(self, item: str) -> bool:
         """

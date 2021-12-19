@@ -144,7 +144,7 @@ class CrawlMp:
         else:
             return self
 
-    def _init_start(self):
+    def _init_start(self) -> None:
         self.results.start_time = time()
         self.running = True
         self.stopped = False
@@ -152,13 +152,13 @@ class CrawlMp:
         self.sig_paused.clear()
         self.sig_worker_idle.clear()
 
-    def start(self, callback: Callable = None, reset_results: bool = True):
+    def start(self, callback: Callable = None, reset_results: bool = True) -> None:
         """
         Start crawl managers.
         If callback is set, then start crawlers in the Thread and call callback in the end.
         :param bool reset_results: Reset previous results
         :param callable callback: Callable
-        :return: CrawlWorker or None
+        :return: None
         """
         if self.running:
             raise CrawlException("Crawling is already running.")
@@ -204,7 +204,7 @@ class CrawlMp:
     def is_paused(self) -> bool:
         """
         Check id crawling is paused.
-        :return bool: pause status
+        :return bool: pause state
         """
         return self.sig_paused.is_set()
 

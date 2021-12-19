@@ -3,14 +3,14 @@ from copy import copy
 
 import pytest
 
-from crawlMp.crawlers.fileCrawler import FileCrawler
+from crawlMp.crawlers.crawler_fs import CrawlerFs
 from crawlMp.snippets.output import print_summary, print_list
 
 
 @pytest.mark.parametrize("links", [["/"]])
 def test_print_summary(fake_fs, links, capsys):
     crawl = None
-    for crawl in FileCrawler(copy(links), max_depth=2):
+    for crawl in CrawlerFs(copy(links), max_depth=2):
         pass
     assert crawl is not None
 
@@ -33,7 +33,7 @@ def test_print_summary_no_result(capsys):
 @pytest.mark.parametrize("links", [["/"]])
 def test_print_list(fake_fs, links, capsys):
     crawl = None
-    for crawl in FileCrawler(copy(links), max_depth=1):
+    for crawl in CrawlerFs(copy(links), max_depth=1):
         pass
 
     assert crawl is not None

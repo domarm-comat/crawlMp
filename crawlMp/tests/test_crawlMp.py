@@ -5,7 +5,7 @@ import pytest
 
 from crawlMp import CrawlException
 from crawlMp.crawlMp import CrawlMp
-from crawlMp.crawlers.fileCrawler import FileCrawler
+from crawlMp.crawlers.crawler_fs import CrawlerFs
 
 
 def done_cb(_, done_event):
@@ -15,7 +15,7 @@ def done_cb(_, done_event):
 @pytest.mark.parametrize("num_proc", [1, 2, 3])
 def test_crawlMp_num_proc(fake_fs, num_proc):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
+    manager = CrawlMp(CrawlerFs, links=["/"], num_proc=num_proc)
     manager.start(callback=lambda m: done_cb(m, done_event))
 
     done_event.wait(timeout=60)
@@ -28,7 +28,7 @@ def test_crawlMp_num_proc(fake_fs, num_proc):
 
 def test_crawlMp_callback(fake_fs):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"])
+    manager = CrawlMp(CrawlerFs, links=["/"])
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     done_event.wait(timeout=60)
@@ -41,7 +41,7 @@ def test_crawlMp_callback(fake_fs):
 
 def test_crawlMp_stop(fake_fs):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"] * 100, num_proc=1)
+    manager = CrawlMp(CrawlerFs, links=["/"] * 100, num_proc=1)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     sleep(0.5)
@@ -54,19 +54,19 @@ def test_crawlMp_stop(fake_fs):
 @pytest.mark.parametrize("num_proc", [0, -1])
 def test_crawlMp_numproc_fail(fake_fs, num_proc):
     with pytest.raises(AssertionError):
-        CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
+        CrawlMp(CrawlerFs, links=["/"], num_proc=num_proc)
 
 
 @pytest.mark.parametrize("buff_size", [0, -1])
 def test_crawlMp_buffer_size_fail(fake_fs, buff_size):
     with pytest.raises(AssertionError):
-        CrawlMp(FileCrawler, links=["/"], buffer_size=buff_size)
+        CrawlMp(CrawlerFs, links=["/"], buffer_size=buff_size)
 
 
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_fail(fake_fs, num_proc):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc)
+    manager = CrawlMp(CrawlerFs, links=["/"], num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
     sleep(2)
     with pytest.raises(CrawlException):
@@ -81,7 +81,7 @@ def batch_done_cb(manager):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"], num_proc=num_proc, keepalive=False, on_batch_done=batch_done_cb)
+    manager = CrawlMp(CrawlerFs, links=["/"], num_proc=num_proc, keepalive=False, on_batch_done=batch_done_cb)
     manager.start(callback=lambda results: done_cb(results, done_event))
     sleep(2)
     manager.append_links(["/"])
@@ -99,7 +99,7 @@ def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume(fake_fs, pause_offset, factor, num_proc):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"] * factor, num_proc=num_proc)
+    manager = CrawlMp(CrawlerFs, links=["/"] * factor, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     sleep(pause_offset)
@@ -124,7 +124,7 @@ def test_crawlMp_pause_resume(fake_fs, pause_offset, factor, num_proc):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume_stop(fake_fs, factor, pause_offset, num_proc):
     done_event = Event()
-    manager = CrawlMp(FileCrawler, links=["/"] * factor, num_proc=num_proc)
+    manager = CrawlMp(CrawlerFs, links=["/"] * factor, num_proc=num_proc)
     manager.start(callback=lambda results: done_cb(results, done_event))
 
     sleep(pause_offset)
