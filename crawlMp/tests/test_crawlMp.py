@@ -95,7 +95,7 @@ def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
 
 
 @pytest.mark.parametrize('factor', range(2, 10, 2))
-@pytest.mark.parametrize("pause_offset", [0.1, 0.5])
+@pytest.mark.parametrize("pause_offset", [0.3, 0.5])
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_pause_resume(fake_fs, pause_offset, factor, num_proc):
     done_event = Event()
