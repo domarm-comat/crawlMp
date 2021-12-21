@@ -4,7 +4,7 @@ import re
 from builtins import OSError
 
 from crawlMp import CrawlException
-from crawlMp.constants import MODE_SIMPLE, MODE_EXTENDED
+from crawlMp.constants import *
 from crawlMp.crawlers.crawler import Crawler
 
 
@@ -31,12 +31,17 @@ class CrawlerFs(Crawler):
         self.actions = actions
         self.max_depth = max_depth
         self.hits_header = {
-            MODE_SIMPLE: ("Path",),
-            MODE_EXTENDED: ("Path", "Size (b)", "Modified", "Accessed")
+            MODE_SIMPLE: ((HEADER_PATH, str, None),
+                          (HEADER_NAME, str, None)),
+            MODE_EXTENDED: ((HEADER_PATH, str, None),
+                            (HEADER_NAME, str, None),
+                            (HEADER_SIZE, float, "byte"),
+                            (HEADER_MODIFIED, float, "timestamp"),
+                            (HEADER_ACCESSED, float, "timestamp"))
         }
         self.links_header = {
-            MODE_SIMPLE: ("Path",),
-            MODE_EXTENDED: ("Path",)
+            MODE_SIMPLE: ((HEADER_PATH, str, None),),
+            MODE_EXTENDED: ((HEADER_PATH, str, None),)
         }
         Crawler.__init__(self, links, mode, actions, args, kwargs)
 
@@ -79,11 +84,11 @@ class CrawlerFs(Crawler):
                     # Skip hit, if not all actions were successful
                     continue
                 if self.mode == MODE_SIMPLE:
-                    hits.append((filepath,))
+                    hits.append((filepath, filename))
                 elif self.mode == MODE_EXTENDED:
                     try:
                         file_stat = os.stat(filepath)
-                        hits.append((filepath, file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
+                        hits.append((filepath, filename, file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
                     except FileNotFoundError:
                         # Ignore if File does not exist anymore
                         # this can happen for linux processes and such

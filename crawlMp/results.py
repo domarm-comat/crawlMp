@@ -16,6 +16,11 @@ class Results:
         """
         Create lists of results.
         If shared is True, all results are created from Shared manager.
+        Crawler must set hits and links header.
+        Header is defined as a list of tuples (Attribute name, Attribute type, Attribute unit).
+        If Attribute has no unit use None.
+        For example:
+            ((Name, str, None), (Size, int, "byte"))
         :param bool shared: shared or local list
         """
         # Required fields

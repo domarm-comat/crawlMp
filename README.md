@@ -50,8 +50,8 @@ Other workers can pick up and follow link(s) from shared list asynchronously.
 ### Python code (blocking) ###
 
 ```python
-from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
 from crawlMp.crawlMp import CrawlMp
+from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
 from crawlMp.snippets.output import print_summary
 
 manager = CrawlMp(CrawlerSearchFs, links=["/home"], num_proc=8, pattern="\.zip$")
@@ -62,8 +62,8 @@ print_summary(manager.results)
 ### Python code (callback) ###
 
 ```python
-from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
 from crawlMp.crawlMp import CrawlMp
+from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
 from crawlMp.snippets.output import print_summary
 
 
@@ -78,8 +78,8 @@ manager.start(on_done)
 ### Python code (actions) ###
 
 ```python
-from crawlMp.actions.action_fs import Copy, Remove
 from crawlMp.crawlMp import CrawlMp
+from crawlMp.actions.action_fs import Copy, Remove
 from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
 from crawlMp.snippets.output import print_summary
 
