@@ -3,7 +3,7 @@ from multiprocessing.managers import ListProxy
 from typing import Any
 
 from crawlMp import CrawlException, ActionException
-from crawlMp.constants import MODE_SIMPLE
+from crawlMp.enums import Mode
 from crawlMp.results import Results
 
 
@@ -11,33 +11,23 @@ class Crawler(ABC):
     """
     Basic Crawler interface.
     """
-    hits_header = None
-    links_header = None
 
-    def __init__(self, links: list = None, mode: str = MODE_SIMPLE, actions: tuple = None, *args, **kwargs):
+    def __init__(self, links: list = None, mode: str = Mode.SIMPLE, actions: tuple = None, *args, **kwargs):
         """
         :param list links: list of entrypoints
         :param str mode: Data collection mode
         :param args:
         :param kwargs:
         """
-        assert isinstance(links, (list, ListProxy)) or links is None
-        # headers for hits and links must be defined
-        assert self.hits_header is not None
-        assert self.links_header is not None
         # crawling mode must be in hits and links headers
-        assert mode in self.hits_header
-        assert mode in self.links_header
-        self.actions = () if actions is None else actions
-        self.mode = mode
         self.args = args
         self.kwargs = kwargs
+        self.actions = actions
+        self.mode = mode
         self.metadata = ()
         self.entrypoint = None
-        self.results = Results()
-        self.results.hits_header = self.hits_header[self.mode]
-        self.results.links_header = self.links_header[self.mode]
-        self.links = links if links is not None else []
+        self.results = Results(self.hits_header(self.mode), self.links_header(self.mode))
+        self.links = links
 
     def __iter__(self):
         return self
@@ -58,6 +48,43 @@ class Crawler(ABC):
             # If crawl fails for any reason, don't follow that link
             self.results.links_skipped.append(next_link)
         return self
+
+    @staticmethod
+    @abstractmethod
+    def links_header(mode: Mode = Mode.SIMPLE) -> tuple:
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def hits_header(mode: Mode = Mode.SIMPLE) -> tuple:
+        ...
+
+    @property
+    def mode(self):
+        return self._mode
+
+    @mode.setter
+    def mode(self, new_mode):
+        assert new_mode in self.crawl_modes()
+        assert new_mode in self.crawl_modes()
+        self._mode = new_mode
+
+    @property
+    def links(self):
+        return self._links
+
+    @links.setter
+    def links(self, new_links):
+        assert isinstance(new_links, (list, ListProxy)) or new_links is None
+        self._links = new_links if new_links is not None else []
+
+    @property
+    def actions(self):
+        return self._actions
+
+    @actions.setter
+    def actions(self, new_actions):
+        self._actions = () if new_actions is None else new_actions
 
     def execute_actions(self, hit: Any) -> bool:
         """

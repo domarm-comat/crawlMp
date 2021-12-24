@@ -13,7 +13,7 @@ from crawlMp.results import Results
 def test_crawl_worker(fake_fs, factor):
     sig_pause = Event()
     sig_idle = Event()
-    results = Results()
+    results = Results(CrawlerFs.hits_header(), CrawlerFs.links_header())
     lock_jobs_acq = Lock()
     job_list = ["/"] * factor
     worker_1 = CrawlWorker(results, CrawlerFs, job_list, sig_pause, sig_idle, lock_jobs_acq, links=None,

@@ -3,7 +3,7 @@ from copy import copy
 
 import pytest
 
-from crawlMp.constants import MODE_EXTENDED, MODE_SIMPLE
+from crawlMp.enums import Mode
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.crawler_fs import CrawlerFs, CrawlerSearchFs
 
@@ -93,7 +93,7 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_fs_crawl_extended_search(fake_fs, num_proc):
     manager = CrawlMp(CrawlerSearchFs, links=["/"], num_proc=num_proc, pattern="\.py$", max_depth=2,
-                      mode=MODE_EXTENDED)
+                      mode=Mode.EXTENDED)
     manager.start()
     df = manager.results.dataframe()
     assert len(manager.results.hits) == 239 == len(df)
@@ -102,4 +102,4 @@ def test_fs_crawl_extended_search(fake_fs, num_proc):
 
 
 def test_fs_crawl_modes(fake_fs):
-    assert CrawlerFs.crawl_modes() == (MODE_SIMPLE, MODE_EXTENDED)
+    assert CrawlerFs.crawl_modes() == (Mode.SIMPLE, Mode.EXTENDED)

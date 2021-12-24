@@ -12,15 +12,16 @@ class Results:
     start_time = time()
     done_time = 0
 
-    def __init__(self, shared=False) -> None:
+    def __init__(self, hits_header: tuple, links_header: tuple, shared=False) -> None:
         """
         Create lists of results.
         If shared is True, all results are created from Shared manager.
-        Crawler must set hits and links header.
         Header is defined as a list of tuples (Attribute name, Attribute type, Attribute unit).
         If Attribute has no unit use None.
         For example:
             ((Name, str, None), (Size, int, "byte"))
+        :param tuple hits_header: header tuple
+        :param tuple links_header: header tuple
         :param bool shared: shared or local list
         """
         # Required fields
@@ -28,8 +29,8 @@ class Results:
         self.hits = share_manager.list() if shared else []
         self.links_followed = share_manager.list() if shared else []
         self.links_skipped = share_manager.list() if shared else []
-        self.hits_header = share_manager.list() if shared else ()
-        self.links_header = share_manager.list() if shared else ()
+        self.hits_header = hits_header
+        self.links_header = links_header
 
     def reset(self) -> None:
         """

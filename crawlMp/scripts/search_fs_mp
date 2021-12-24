@@ -8,6 +8,7 @@ import sys
 from crawlMp import __version__
 from crawlMp.constants import *
 from crawlMp.crawlMp import CrawlMp
+from crawlMp.enums import Mode
 from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
 from crawlMp.snippets.output import print_summary, print_list
 
@@ -57,6 +58,6 @@ def on_done(m: CrawlMp) -> None:
 
 
 manager = CrawlMp(CrawlerSearchFs, links=args.links, num_proc=args.processes, buffer_size=args.buffer_size,
-                  pattern=args.pattern, mode=MODE_SIMPLE)
+                  pattern=args.pattern, mode=Mode.SIMPLE)
 signal.signal(signal.SIGINT, lambda sig, frame: manager.stop())
 manager.start(on_done)

@@ -4,8 +4,8 @@ import re
 from builtins import OSError
 
 from crawlMp import CrawlException
-from crawlMp.constants import *
 from crawlMp.crawlers.crawler import Crawler
+from crawlMp.enums import Mode, Header
 
 
 class CrawlerFs(Crawler):
@@ -17,7 +17,7 @@ class CrawlerFs(Crawler):
     MODE_EXTENDED is slower, because os.stat has to be called for every hit.
     """
 
-    def __init__(self, links: list, max_depth: int = math.inf, mode: str = MODE_SIMPLE, actions: tuple = None, *args,
+    def __init__(self, links: list, max_depth: int = math.inf, mode: str = Mode.SIMPLE, actions: tuple = None, *args,
                  **kwargs) -> None:
         """
         Crawl is finished when links list is empty.
@@ -30,19 +30,6 @@ class CrawlerFs(Crawler):
         assert max_depth >= 0
         self.actions = actions
         self.max_depth = max_depth
-        self.hits_header = {
-            MODE_SIMPLE: ((HEADER_PATH, str, None),
-                          (HEADER_NAME, str, None)),
-            MODE_EXTENDED: ((HEADER_PATH, str, None),
-                            (HEADER_NAME, str, None),
-                            (HEADER_SIZE, float, "byte"),
-                            (HEADER_MODIFIED, float, "timestamp"),
-                            (HEADER_ACCESSED, float, "timestamp"))
-        }
-        self.links_header = {
-            MODE_SIMPLE: ((HEADER_PATH, str, None),),
-            MODE_EXTENDED: ((HEADER_PATH, str, None),)
-        }
         Crawler.__init__(self, links, mode, actions, args, kwargs)
 
     def init_entrypoint(self) -> tuple:
@@ -66,8 +53,26 @@ class CrawlerFs(Crawler):
             raise CrawlException("Entrypoint could not be accessed!")
 
     @staticmethod
+    def links_header(mode: Mode = Mode.SIMPLE) -> tuple:
+        if mode == Mode.SIMPLE:
+            return ((Header.PATH, str, None),)
+        elif mode == Mode.EXTENDED:
+            return ((Header.PATH, str, None),)
+
+    @staticmethod
+    def hits_header(mode: Mode = Mode.SIMPLE) -> tuple:
+        if mode == Mode.SIMPLE:
+            return ((Header.PATH, str, None), (Header.NAME, str, None))
+        elif mode == Mode.EXTENDED:
+            return ((Header.PATH, str, None),
+                    (Header.NAME, str, None),
+                    (Header.SIZE, float, "byte"),
+                    (Header.MODIFIED, float, "timestamp"),
+                    (Header.ACCESSED, float, "timestamp"))
+
+    @staticmethod
     def crawl_modes() -> tuple:
-        return MODE_SIMPLE, MODE_EXTENDED
+        return Mode.SIMPLE, Mode.EXTENDED
 
     def extract_hits(self) -> list:
         """
@@ -83,9 +88,9 @@ class CrawlerFs(Crawler):
                 if not self.execute_actions(filepath):
                     # Skip hit, if not all actions were successful
                     continue
-                if self.mode == MODE_SIMPLE:
+                if self.mode == Mode.SIMPLE:
                     hits.append((filepath, filename))
-                elif self.mode == MODE_EXTENDED:
+                elif self.mode == Mode.EXTENDED:
                     try:
                         file_stat = os.stat(filepath)
                         hits.append((filepath, filename, file_stat.st_size, file_stat.st_mtime, file_stat.st_atime))
@@ -136,7 +141,7 @@ class CrawlerSearchFs(CrawlerFs):
     Crawl through filesystem and find all files matching regexp pattern.
     """
 
-    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=MODE_SIMPLE,
+    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=Mode.SIMPLE,
                  actions: tuple = None, *args, **kwargs) -> None:
         """
         :param list links: List of paths / entrypoints

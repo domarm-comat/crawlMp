@@ -35,7 +35,6 @@ class CrawlWorker(Process):
         :param args:
         :param kwargs:
         """
-        assert buffer_size >= 1
         Process.__init__(self)
         self.worker_id = next(self.id_gen)
         self.results = results
@@ -50,6 +49,15 @@ class CrawlWorker(Process):
         self.args = args
         self.kwargs = kwargs
 
+    @property
+    def buffer_size(self):
+        return self._buffer_size
+
+    @buffer_size.setter
+    def buffer_size(self, new_buffer_size):
+        assert new_buffer_size >= 1
+        self._buffer_size = new_buffer_size
+
     def run(self) -> None:
         """
         Worker body
@@ -58,13 +66,6 @@ class CrawlWorker(Process):
         """
         # Initiate Crawler object for current Worker
         crawler = self.crawler_class(*self.args, **self.kwargs)
-        if self.results.shared:
-            self.results.hits_header[:] = crawler.results.hits_header
-            self.results.links_header[:] = crawler.results.links_header
-        else:
-            self.results.hits_header = crawler.results.hits_header
-            self.results.links_header = crawler.results.links_header
-
         def flush_results(worker_crawler) -> None:
             """
             Flush crawler results into shared worker results.

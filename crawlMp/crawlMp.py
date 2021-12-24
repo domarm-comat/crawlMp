@@ -7,6 +7,7 @@ from typing import Any, Callable, Type
 from crawlMp import share_manager, CrawlException
 from crawlMp.crawlWorker import CrawlWorker
 from crawlMp.crawlers.crawler import Crawler
+from crawlMp.enums import Mode
 from crawlMp.results import Results
 
 
@@ -51,7 +52,9 @@ class CrawlMp:
         self.sig_batch_done = Event()
         self.lock_jobs_acq = Lock()
         self.actions = actions
-        self.results = Results(shared=True)
+        self.results = Results(crawler_class.hits_header(kwargs.get("mode", Mode.SIMPLE)),
+                               crawler_class.hits_header(kwargs.get("mode", Mode.SIMPLE)),
+                               shared=True)
 
     def _init_workers(self) -> None:
         """
