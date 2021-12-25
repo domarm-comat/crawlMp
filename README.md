@@ -1,5 +1,7 @@
 # Overview #
 
+![GitHub](https://img.shields.io/github/license/domarm-comat/crawlMp)
+
 Main aim of this project is to provide simple tool for multiprocess crawling.  
 It can be used either as a tool for python project or as a command line tool.
 

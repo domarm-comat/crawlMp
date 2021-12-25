@@ -8,8 +8,8 @@ import sys
 from crawlMp import __version__
 from crawlMp.constants import *
 from crawlMp.crawlMp import CrawlMp
-from crawlMp.enums import Mode
 from crawlMp.crawlers.crawler_fs import CrawlerSearchFs
+from crawlMp.enums import Mode
 from crawlMp.snippets.output import print_summary, print_list
 
 description = [

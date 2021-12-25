@@ -1,18 +1,21 @@
 from time import time
+from typing import Tuple
 
 from pandas import DataFrame
 
 from crawlMp import share_manager
+from crawlMp.crawlers.crawler import Header_ref
 
 
 class Results:
     """
     Object to aggregate all results and errors.
     """
-    start_time = time()
-    done_time = 0
+    start_time: float = time()
+    done_time: float = 0
 
-    def __init__(self, hits_header: tuple, links_header: tuple, shared=False) -> None:
+    def __init__(self, hits_header: Tuple[Header_ref, ...], links_header: Tuple[Header_ref, ...],
+                 shared: bool = False) -> None:
         """
         Create lists of results.
         If shared is True, all results are created from Shared manager.

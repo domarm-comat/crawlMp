@@ -3,9 +3,9 @@ from copy import copy
 
 import pytest
 
-from crawlMp.enums import Mode
 from crawlMp.crawlMp import CrawlMp
 from crawlMp.crawlers.crawler_fs import CrawlerFs, CrawlerSearchFs
+from crawlMp.enums import Mode
 
 
 @pytest.mark.parametrize("links", [["/"], ["/doc/source", "/numpy/doc"]], ids=["all", "two-dir"])
@@ -102,4 +102,4 @@ def test_fs_crawl_extended_search(fake_fs, num_proc):
 
 
 def test_fs_crawl_modes(fake_fs):
-    assert CrawlerFs.crawl_modes() == (Mode.SIMPLE, Mode.EXTENDED)
+    assert CrawlerFs.crawl_modes() == [Mode.SIMPLE, Mode.EXTENDED]

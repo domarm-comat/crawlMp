@@ -1,10 +1,11 @@
 from multiprocessing import Lock, Event
 from threading import Thread
 from time import time
-from typing import Any, Callable, Type
+from typing import Any, Callable, Type, List, Tuple, Optional
 
 # Create global Process Manager
 from crawlMp import share_manager, CrawlException
+from crawlMp.actions.action import Action
 from crawlMp.crawlWorker import CrawlWorker
 from crawlMp.crawlers.crawler import Crawler
 from crawlMp.enums import Mode
@@ -19,10 +20,12 @@ class CrawlMp:
     This is useful to manage multiple searches while in keepalive loop.
     """
     stopped = False
+    running = False
     batch_id = 0
 
-    def __init__(self, crawler_class: Type[Crawler], links: list, keepalive=True, on_batch_done: Callable = None,
-                 num_proc: int = 4, buffer_size: int = 96, actions: tuple = None, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, crawler_class: Type[Crawler], links: List[Any], keepalive: bool = True,
+                 on_batch_done: Optional[Callable] = None, num_proc: int = 4, buffer_size: int = 96,
+                 actions: Optional[Tuple[Action, ...]] = None, *args: Any, **kwargs: Any) -> None:
         """
         :param crawler_class: Crawler class to use with Worker
         :param list links: List of entrypoints
@@ -33,8 +36,6 @@ class CrawlMp:
         :param args:
         :param kwargs:
         """
-        assert num_proc > 0
-        assert buffer_size >= 1
         self.num_proc = num_proc
         self.crawler_class = crawler_class
         self.jobs_list = share_manager.list(links)
@@ -43,8 +44,7 @@ class CrawlMp:
         self.jobs_acquiring_lock = Lock()
         self.args = args
         self.kwargs = kwargs
-        self.workers = []
-        self.running = False
+        self.workers: List[CrawlWorker] = []
         self.buffer_size = buffer_size
         self.sig_resumed = Event()
         self.sig_paused = Event()
@@ -72,6 +72,24 @@ class CrawlMp:
             if not self.running:
                 return
 
+    @property
+    def buffer_size(self) -> int:
+        return self._buffer_size
+
+    @buffer_size.setter
+    def buffer_size(self, new_buffer_size: int) -> None:
+        assert new_buffer_size >= 1
+        self._buffer_size = new_buffer_size
+
+    @property
+    def num_proc(self) -> int:
+        return self._num_proc
+
+    @num_proc.setter
+    def num_proc(self, new_num_proc: int) -> None:
+        assert new_num_proc > 0
+        self._num_proc = new_num_proc
+
     def stop_workers(self) -> None:
         """
         Stop all workers
@@ -92,7 +110,7 @@ class CrawlMp:
             self.sig_paused.clear()
             self.sig_resumed.set()
 
-    def _start(self, callback: Callable = None) -> 'CrawlMp':
+    def _start(self, callback: Optional[Callable] = None) -> 'CrawlMp':
         """
         Start crawling using multiple workers.
         :param Callable callback: callback function
@@ -155,7 +173,7 @@ class CrawlMp:
         self.sig_paused.clear()
         self.sig_worker_idle.clear()
 
-    def start(self, callback: Callable = None, reset_results: bool = True) -> None:
+    def start(self, callback: Optional[Callable] = None, reset_results: bool = True) -> None:
         """
         Start crawl managers.
         If callback is set, then start crawlers in the Thread and call callback in the end.
@@ -211,7 +229,7 @@ class CrawlMp:
         """
         return self.sig_paused.is_set()
 
-    def append_links(self, links: list) -> None:
+    def append_links(self, links: List[Any]) -> None:
         """
         Add links, thread safe.
         :param list links: New links to crawl

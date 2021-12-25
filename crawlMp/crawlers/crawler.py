@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from multiprocessing.managers import ListProxy
-from typing import Any
+from typing import Any, Tuple, List, Optional
 
 from crawlMp import CrawlException, ActionException
-from crawlMp.enums import Mode
+from crawlMp.actions.action import Action
+from crawlMp.enums import Mode, Header_ref
 from crawlMp.results import Results
 
 
@@ -12,7 +13,8 @@ class Crawler(ABC):
     Basic Crawler interface.
     """
 
-    def __init__(self, links: list = None, mode: str = Mode.SIMPLE, actions: tuple = None, *args, **kwargs):
+    def __init__(self, links: Optional[List[Any]] = None, mode: Mode = Mode.SIMPLE,
+                 actions: Optional[Tuple[Action, ...]] = None, *args, **kwargs):
         """
         :param list links: list of entrypoints
         :param str mode: Data collection mode
@@ -24,8 +26,8 @@ class Crawler(ABC):
         self.kwargs = kwargs
         self.actions = actions
         self.mode = mode
-        self.metadata = ()
-        self.entrypoint = None
+        self.metadata: Tuple[Any, ...] = ()
+        self.entrypoint: Any = None
         self.results = Results(self.hits_header(self.mode), self.links_header(self.mode))
         self.links = links
 
@@ -49,32 +51,21 @@ class Crawler(ABC):
             self.results.links_skipped.append(next_link)
         return self
 
-    @staticmethod
-    @abstractmethod
-    def links_header(mode: Mode = Mode.SIMPLE) -> tuple:
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def hits_header(mode: Mode = Mode.SIMPLE) -> tuple:
-        ...
-
     @property
-    def mode(self):
+    def mode(self) -> Mode:
         return self._mode
 
     @mode.setter
-    def mode(self, new_mode):
-        assert new_mode in self.crawl_modes()
+    def mode(self, new_mode: Mode) -> None:
         assert new_mode in self.crawl_modes()
         self._mode = new_mode
 
     @property
-    def links(self):
+    def links(self) -> List[Any]:
         return self._links
 
     @links.setter
-    def links(self, new_links):
+    def links(self, new_links: Optional[List[Any]]):
         assert isinstance(new_links, (list, ListProxy)) or new_links is None
         self._links = new_links if new_links is not None else []
 
@@ -83,8 +74,10 @@ class Crawler(ABC):
         return self._actions
 
     @actions.setter
-    def actions(self, new_actions):
+    def actions(self, new_actions: Tuple[Action, ...]):
         self._actions = () if new_actions is None else new_actions
+        for action in self._actions:
+            assert isinstance(action, Action)
 
     def execute_actions(self, hit: Any) -> bool:
         """
@@ -101,8 +94,43 @@ class Crawler(ABC):
                 return False
         return True
 
+    def crawl(self, entrypoint: Any) -> None:
+        """
+        Init entrypoint (next link), extract links and hits, close entrypoint.
+        :param Any entrypoint: Address of entrypoint / resource
+        :return: None
+        """
+        if entrypoint is None:
+            return
+        self.entrypoint = entrypoint
+        self.metadata = self.init_entrypoint()
+        self.results.links_followed.append(entrypoint)
+        self.results.hits += self.extract_hits()
+        self.links += self.extract_links()
+        self.close_entrypoint()
+
+    @staticmethod
     @abstractmethod
-    def init_entrypoint(self) -> tuple:
+    def links_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
+        """
+        Get links header
+        :param Mode mode: crawl mode
+        :return tuple: (Name, Type, Unit)
+        """
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def hits_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
+        """
+        Get hits header
+        :param Mode mode: crawl mode
+        :return tuple: (Name, Type, Unit)
+        """
+        ...
+
+    @abstractmethod
+    def init_entrypoint(self) -> Tuple[Any, ...]:
         """
         Initialize entrypoint / resource
         Good example is opening new webpage, when entrypoint is url.
@@ -111,7 +139,7 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def extract_hits(self) -> list:
+    def extract_hits(self) -> List[Any]:
         """
         Extract all hits from current entrypoint / resource.
         This method must be reimplemented.
@@ -120,7 +148,7 @@ class Crawler(ABC):
         ...
 
     @abstractmethod
-    def extract_links(self) -> list:
+    def extract_links(self) -> List[Any]:
         """
         Extract all links from current entrypoint / resource.
         This method must be reimplemented.
@@ -159,24 +187,9 @@ class Crawler(ABC):
 
     @staticmethod
     @abstractmethod
-    def crawl_modes() -> tuple:
+    def crawl_modes() -> List[Mode]:
         """
         Get available crawl modes.
         :return tuple: (Mode1, Mode2, ...)
         """
         ...
-
-    def crawl(self, entrypoint: Any) -> None:
-        """
-        Init entrypoint (next link), extract links and hits, close entrypoint.
-        :param Any entrypoint: Address of entrypoint / resource
-        :return: None
-        """
-        if entrypoint is None:
-            return
-        self.entrypoint = entrypoint
-        self.metadata = self.init_entrypoint()
-        self.results.links_followed.append(entrypoint)
-        self.results.hits += self.extract_hits()
-        self.links += self.extract_links()
-        self.close_entrypoint()

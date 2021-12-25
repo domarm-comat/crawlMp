@@ -1,24 +1,26 @@
-import math
 import os
 import re
 from builtins import OSError
+from typing import Tuple, List, Optional, Any
 
 from crawlMp import CrawlException
+from crawlMp.actions.action import Action
+from crawlMp.constants import inf_int
 from crawlMp.crawlers.crawler import Crawler
-from crawlMp.enums import Mode, Header
+from crawlMp.enums import Mode, Header, Header_ref
 
 
 class CrawlerFs(Crawler):
     """
     Crawl through filesystem and find all files.
     Supporting two collection modes:
-      - MODE_SIMPLE: ("Path")
-      - MODE_EXTENDED: ("Path", "Size (b)", "Modified", "Accessed")
+      - MODE_SIMPLE: (PATH)
+      - MODE_EXTENDED: (PATH, SIZE, MODIFIED, ACCESSED)
     MODE_EXTENDED is slower, because os.stat has to be called for every hit.
     """
 
-    def __init__(self, links: list, max_depth: int = math.inf, mode: str = Mode.SIMPLE, actions: tuple = None, *args,
-                 **kwargs) -> None:
+    def __init__(self, links: List[str], max_depth: int = inf_int, mode: Mode = Mode.SIMPLE,
+                 actions: Optional[Tuple[Action, ...]] = None, *args, **kwargs) -> None:
         """
         Crawl is finished when links list is empty.
         :param list links: List of paths / entrypoints
@@ -32,10 +34,10 @@ class CrawlerFs(Crawler):
         self.max_depth = max_depth
         Crawler.__init__(self, links, mode, actions, args, kwargs)
 
-    def init_entrypoint(self) -> tuple:
+    def init_entrypoint(self) -> Tuple[List, List]:
         """
-        Walk directory and extract root, dirs, files
-        :return list: (root, dirs, files)
+        Walk directory and extract list of dirs, files
+        :return tuple: ([dirs], [files])
         """
         try:
             files, dirs = [], []
@@ -50,31 +52,31 @@ class CrawlerFs(Crawler):
             return dirs, files
         except (PermissionError, OSError):
             # Raise an error if for any reason scandir fails
-            raise CrawlException("Entrypoint could not be accessed!")
+            raise CrawlException("Entrypoint cannot be accessed!")
 
     @staticmethod
-    def links_header(mode: Mode = Mode.SIMPLE) -> tuple:
-        if mode == Mode.SIMPLE:
-            return ((Header.PATH, str, None),)
-        elif mode == Mode.EXTENDED:
-            return ((Header.PATH, str, None),)
+    def links_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
+        if mode == Mode.EXTENDED:
+            return (Header.PATH, str, None),
+        return (Header.PATH, str, None),
 
     @staticmethod
-    def hits_header(mode: Mode = Mode.SIMPLE) -> tuple:
-        if mode == Mode.SIMPLE:
-            return ((Header.PATH, str, None), (Header.NAME, str, None))
-        elif mode == Mode.EXTENDED:
+    def hits_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
+        if mode == Mode.EXTENDED:
             return ((Header.PATH, str, None),
                     (Header.NAME, str, None),
                     (Header.SIZE, float, "byte"),
                     (Header.MODIFIED, float, "timestamp"),
                     (Header.ACCESSED, float, "timestamp"))
 
-    @staticmethod
-    def crawl_modes() -> tuple:
-        return Mode.SIMPLE, Mode.EXTENDED
+        return ((Header.PATH, str, None),
+                (Header.NAME, str, None))
 
-    def extract_hits(self) -> list:
+    @staticmethod
+    def crawl_modes() -> List[Mode]:
+        return [Mode.SIMPLE, Mode.EXTENDED]
+
+    def extract_hits(self) -> List[Tuple[Any, ...]]:
         """
         Extract all files in entrypoint
         Collect only filenames in SIMPLE_MODE
@@ -82,7 +84,7 @@ class CrawlerFs(Crawler):
         :return list: list of files
         """
         _, files = self.metadata
-        hits = []
+        hits: List[Tuple[Any, ...]] = []
         for filename, filepath in files:
             if self.is_hit(filename):
                 if not self.execute_actions(filepath):
@@ -100,7 +102,7 @@ class CrawlerFs(Crawler):
                         continue
         return hits
 
-    def extract_links(self) -> list:
+    def extract_links(self) -> List[Tuple]:
         """
         Extract all other directories in entrypoint.
         :return list: list of directories
@@ -109,7 +111,7 @@ class CrawlerFs(Crawler):
         links = []
         for dir_path in dirs:
             if self.is_link(dir_path):
-                links.append(dir_path)
+                links.append(dir_path, )
         return links
 
     def is_hit(self, item: str) -> bool:
@@ -130,7 +132,7 @@ class CrawlerFs(Crawler):
 
     def close_entrypoint(self) -> None:
         """
-        Just pass as we didn't allocate anything.
+        Just pass, as we didn't allocate any resources.
         :return: None
         """
         pass
@@ -141,8 +143,8 @@ class CrawlerSearchFs(CrawlerFs):
     Crawl through filesystem and find all files matching regexp pattern.
     """
 
-    def __init__(self, links: list, pattern: str = ".", max_depth: int = math.inf, mode=Mode.SIMPLE,
-                 actions: tuple = None, *args, **kwargs) -> None:
+    def __init__(self, links: List[str], pattern: str = ".", max_depth: int = inf_int, mode=Mode.SIMPLE,
+                 actions: Optional[Tuple[Action, ...]] = None, *args, **kwargs) -> None:
         """
         :param list links: List of paths / entrypoints
         :param str pattern: regular expression pattern used to search for hits

@@ -1,5 +1,5 @@
 from multiprocessing import Event, Process, Lock
-from typing import Any, Iterator, Type
+from typing import Any, Iterator, Type, List
 
 from crawlMp.crawlers.crawler import Crawler
 from crawlMp.results import Results
@@ -22,7 +22,7 @@ class CrawlWorker(Process):
     """
     id_gen = worker_id_gen()
 
-    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: list, sig_pause: Event,
+    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: List[Any], sig_pause: Event,
                  sig_idle: Event, lock_jobs_acq: Lock, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
         """
         :param Result results: results object
@@ -54,7 +54,7 @@ class CrawlWorker(Process):
         return self._buffer_size
 
     @buffer_size.setter
-    def buffer_size(self, new_buffer_size):
+    def buffer_size(self, new_buffer_size: int):
         assert new_buffer_size >= 1
         self._buffer_size = new_buffer_size
 
@@ -64,9 +64,9 @@ class CrawlWorker(Process):
         Initiate Crawler and crawl through
         :return: None
         """
-        # Initiate Crawler object for current Worker
         crawler = self.crawler_class(*self.args, **self.kwargs)
-        def flush_results(worker_crawler) -> None:
+
+        def flush_results(worker_crawler: Crawler) -> None:
             """
             Flush crawler results into shared worker results.
             :return: None

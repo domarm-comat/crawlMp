@@ -1,7 +1,9 @@
+from typing import Optional
+
 from crawlMp.results import Results
 
 
-def print_summary(results: Results = None) -> None:
+def print_summary(results: Optional[Results] = None) -> None:
     """
     Print summary of collected results.
     :param results:
@@ -16,12 +18,12 @@ def print_summary(results: Results = None) -> None:
         print("No results...")
 
 
-def print_list(results: Results = None) -> None:
+def print_list(results: Optional[Results] = None) -> None:
     """
     Print every hit on a new line.
     Suitable for bash output.
     :param results:
     :return: None
     """
-    if len(results.hits) > 0:
+    if results is not None and len(results.hits) > 0:
         print(*[result[0] for result in results.hits], sep="\n")
