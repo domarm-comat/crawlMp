@@ -22,7 +22,7 @@ class CrawlWorker(Process):
     """
     id_gen = worker_id_gen()
 
-    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: List[Any], sig_pause: Type['Event'],
+    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: List[Any], sig_pause: Event,
                  sig_idle: Event, lock_jobs_acq: Lock, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
         """
         :param Result results: results object
