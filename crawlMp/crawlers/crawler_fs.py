@@ -32,27 +32,7 @@ class CrawlerFs(Crawler):
         assert max_depth >= 0
         self.actions = actions
         self.max_depth = max_depth
-        Crawler.__init__(self, links, mode, actions, args, kwargs)
-
-    def init_entrypoint(self) -> Tuple[List, List]:
-        """
-        Walk directory and extract list of dirs, files
-        :return tuple: ([dirs], [files])
-        """
-        try:
-            files, dirs = [], []
-            for entry in os.scandir(self.entrypoint):
-                if entry.is_file(follow_symlinks=False):
-                    files.append((entry.name, entry.path))
-                elif entry.is_dir(follow_symlinks=False):
-                    dirs.append(entry.path)
-                else:
-                    # entry is not dir nor file, count it as a skipped link
-                    self.results.links_skipped.append(entry.path)
-            return dirs, files
-        except (PermissionError, OSError):
-            # Raise an error if for any reason scandir fails
-            raise CrawlException("Entrypoint cannot be accessed!")
+        super().__init__(links, mode, actions, args, kwargs)
 
     @staticmethod
     def links_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
@@ -75,6 +55,33 @@ class CrawlerFs(Crawler):
     @staticmethod
     def crawl_modes() -> List[Mode]:
         return [Mode.SIMPLE, Mode.EXTENDED]
+
+    def init_entrypoint(self) -> Tuple[List, List]:
+        """
+        Walk directory and extract list of dirs, files
+        :return tuple: ([dirs], [files])
+        """
+        try:
+            files, dirs = [], []
+            for entry in os.scandir(self.entrypoint):
+                if entry.is_file(follow_symlinks=False):
+                    files.append((entry.name, entry.path))
+                elif entry.is_dir(follow_symlinks=False):
+                    dirs.append(entry.path)
+                else:
+                    # entry is not dir nor file, count it as a skipped link
+                    self.results.links_skipped.append(entry.path)
+            return dirs, files
+        except (PermissionError, OSError):
+            # Raise an error if for any reason scandir fails
+            raise CrawlException("Entrypoint cannot be accessed!")
+
+    def close_entrypoint(self) -> None:
+        """
+        Just pass, as we didn't allocate any resources.
+        :return: None
+        """
+        pass
 
     def extract_hits(self) -> List[Tuple[Any, ...]]:
         """
@@ -130,20 +137,13 @@ class CrawlerFs(Crawler):
         """
         return self.entrypoint.count(os.sep) < self.max_depth
 
-    def close_entrypoint(self) -> None:
-        """
-        Just pass, as we didn't allocate any resources.
-        :return: None
-        """
-        pass
-
 
 class CrawlerSearchFs(CrawlerFs):
     """
     Crawl through filesystem and find all files matching regexp pattern.
     """
 
-    def __init__(self, links: List[str], pattern: str = ".", max_depth: int = inf_int, mode=Mode.SIMPLE,
+    def __init__(self, links: List[str], pattern: str = ".", max_depth: int = inf_int, mode: Mode = Mode.SIMPLE,
                  actions: Optional[Tuple[Action, ...]] = None, *args, **kwargs) -> None:
         """
         :param list links: List of paths / entrypoints
@@ -154,7 +154,7 @@ class CrawlerSearchFs(CrawlerFs):
         :param kwargs: other key arguments
         """
         self.pattern = re.compile(pattern)
-        CrawlerFs.__init__(self, links, max_depth, mode, actions, args, kwargs)
+        super().__init__(links, max_depth, mode, actions, args, kwargs)
 
     def is_hit(self, item: str) -> bool:
         """

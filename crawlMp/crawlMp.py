@@ -56,22 +56,6 @@ class CrawlMp:
                                crawler_class.hits_header(kwargs.get("mode", Mode.SIMPLE)),
                                shared=True)
 
-    def _init_workers(self) -> None:
-        """
-        Initiate workers
-        Number of workers equals num_proc attribute value.
-        :return: None
-        """
-        for i in range(self.num_proc):
-            worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, self.sig_paused,
-                                 self.sig_worker_idle, self.lock_jobs_acq, actions=self.actions, links=None, *self.args,
-                                 **self.kwargs)
-            self.workers.append(worker)
-            worker.start()
-
-            if not self.running:
-                return
-
     @property
     def buffer_size(self) -> int:
         return self._buffer_size
@@ -90,25 +74,21 @@ class CrawlMp:
         assert new_num_proc > 0
         self._num_proc = new_num_proc
 
-    def stop_workers(self) -> None:
+    def _init_workers(self) -> None:
         """
-        Stop all workers
+        Initiate workers
+        Number of workers equals num_proc attribute value.
         :return: None
         """
-        for worker in self.workers:
-            worker.stop()
-            worker.wake_signal.set()
+        for i in range(self.num_proc):
+            worker = CrawlWorker(self.results, self.crawler_class, self.jobs_list, self.sig_paused,
+                                 self.sig_worker_idle, self.lock_jobs_acq, actions=self.actions, links=None, *self.args,
+                                 **self.kwargs)
+            self.workers.append(worker)
+            worker.start()
 
-    def stop(self) -> None:
-        """
-        Stop crawling
-        :return: None
-        """
-        self.running = False
-        self.stopped = True
-        if self.is_paused():
-            self.sig_paused.clear()
-            self.sig_resumed.set()
+            if not self.running:
+                return
 
     def _start(self, callback: Optional[Callable] = None) -> 'CrawlMp':
         """
@@ -166,6 +146,10 @@ class CrawlMp:
             return self
 
     def _init_start(self) -> None:
+        """
+        Initiate all flags and clear all signals.
+        :return: None
+        """
         self.results.start_time = time()
         self.running = True
         self.stopped = False
@@ -182,7 +166,7 @@ class CrawlMp:
         :return: None
         """
         if self.running:
-            raise CrawlException("Crawling is already running.")
+            raise CrawlException("Crawling is already in progress.")
 
         self._init_start()
         if reset_results:
@@ -210,6 +194,13 @@ class CrawlMp:
             # Block until all workers are idle
             worker.sig_idle.wait()
 
+    def is_paused(self) -> bool:
+        """
+        Check id crawling is paused.
+        :return bool: pause state
+        """
+        return self.sig_paused.is_set()
+
     def resume(self) -> None:
         """
         Resume crawling if paused
@@ -222,12 +213,25 @@ class CrawlMp:
             # Wake up all workers again
             worker.wake_signal.set()
 
-    def is_paused(self) -> bool:
+    def stop(self) -> None:
         """
-        Check id crawling is paused.
-        :return bool: pause state
+        Stop crawling
+        :return: None
         """
-        return self.sig_paused.is_set()
+        self.running = False
+        self.stopped = True
+        if self.is_paused():
+            self.sig_paused.clear()
+            self.sig_resumed.set()
+
+    def stop_workers(self) -> None:
+        """
+        Stop all workers
+        :return: None
+        """
+        for worker in self.workers:
+            worker.stop()
+            worker.wake_signal.set()
 
     def append_links(self, links: List[Any]) -> None:
         """

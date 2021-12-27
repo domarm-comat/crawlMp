@@ -3,7 +3,7 @@ Name                                Stmts   Miss  Cover
 crawlMp/__init__.py                     7      0   100%
 crawlMp/actions/__init__.py             0      0   100%
 crawlMp/actions/action.py               9      1    89%
-crawlMp/actions/action_fs.py           46     11    76%
+crawlMp/actions/action_fs.py           47      9    81%
 crawlMp/constants.py                    6      0   100%
 crawlMp/crawlMp.py                    134      3    98%
 crawlMp/crawlWorker.py                 60      0   100%
@@ -22,4 +22,4 @@ crawlMp/tests/test_fileCrawler.py      51      0   100%
 crawlMp/tests/test_fs_actions.py       44      0   100%
 crawlMp/tests/test_snippets.py         31      0   100%
 -------------------------------------------------------
-TOTAL                                 783     50    94%
+TOTAL                                 784     48    94%

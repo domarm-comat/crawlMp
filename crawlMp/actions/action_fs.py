@@ -6,7 +6,25 @@ from crawlMp import ActionException
 from crawlMp.actions.action import Action
 
 
-class Copy(Action):
+class TargetDir:
+    _target_dir = None
+
+    @property
+    def target_dir(self):
+        return self._target_dir
+
+    @target_dir.setter
+    def target_dir(self, new_target_dir):
+        if not os.path.isdir(new_target_dir):
+            # Target dir does not exist, try to create it
+            try:
+                os.mkdir(new_target_dir)
+            except OSError as e:
+                raise ActionException(e)
+        self._target_dir = new_target_dir
+
+
+class Copy(Action, TargetDir):
     """
     Copy file or folder.
     """
@@ -17,14 +35,8 @@ class Copy(Action):
         :param args:
         :param kwargs:
         """
-        Action.__init__(self, *args, **kwargs)
         self.target_dir = target_dir
-        if not os.path.isdir(self.target_dir):
-            # Target dir does not exist, try to create it
-            try:
-                os.mkdir(self.target_dir)
-            except OSError as e:
-                raise ActionException(e)
+        super().__init__(*args, **kwargs)
 
     def do(self, link: str) -> str:
         """
@@ -41,7 +53,7 @@ class Copy(Action):
             raise ActionException(exception)
 
 
-class Move(Action):
+class Move(Action, TargetDir):
     """
     Move file or folder.
     """
@@ -52,14 +64,8 @@ class Move(Action):
         :param args:
         :param kwargs:
         """
-        Action.__init__(self, *args, **kwargs)
         self.target_dir = target_dir
-        if not os.path.isdir(self.target_dir):
-            # Target dir does not exist, try to create it
-            try:
-                os.mkdir(self.target_dir)
-            except OSError as e:
-                raise ActionException(e)
+        super().__init__(*args, **kwargs)
 
     def do(self, link: str) -> str:
         """
@@ -77,13 +83,6 @@ class Remove(Action):
     """
     Remove file or folder.
     """
-
-    def __init__(self, *args, **kwargs) -> None:
-        """
-        :param args:
-        :param kwargs:
-        """
-        Action.__init__(self, *args, **kwargs)
 
     def do(self, link: str) -> None:
         """

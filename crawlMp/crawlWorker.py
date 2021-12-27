@@ -35,7 +35,7 @@ class CrawlWorker(Process):
         :param args:
         :param kwargs:
         """
-        Process.__init__(self)
+        super().__init__()
         self.worker_id = next(self.id_gen)
         self.results = results
         self.stop_signal = Event()

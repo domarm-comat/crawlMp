@@ -1,5 +1,5 @@
 from time import time
-from typing import Tuple
+from typing import Tuple, List, Any
 
 from pandas import DataFrame
 
@@ -29,9 +29,9 @@ class Results:
         """
         # Required fields
         self.shared = shared
-        self.hits = share_manager.list() if shared else []
-        self.links_followed = share_manager.list() if shared else []
-        self.links_skipped = share_manager.list() if shared else []
+        self.hits: List[Any] = share_manager.list() if shared else []
+        self.links_followed: List[Any] = share_manager.list() if shared else []
+        self.links_skipped: List[Any] = share_manager.list() if shared else []
         self.hits_header = hits_header
         self.links_header = links_header
 

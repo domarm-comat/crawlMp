@@ -79,6 +79,35 @@ class Crawler(ABC):
         for action in self._actions:
             assert isinstance(action, Action)
 
+    @staticmethod
+    @abstractmethod
+    def crawl_modes() -> List[Mode]:
+        """
+        Get available crawl modes.
+        :return tuple: (Mode1, Mode2, ...)
+        """
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def links_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
+        """
+        Get links header
+        :param Mode mode: crawl mode
+        :return tuple: (Name, Type, Unit)
+        """
+        ...
+
+    @staticmethod
+    @abstractmethod
+    def hits_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
+        """
+        Get hits header
+        :param Mode mode: crawl mode
+        :return tuple: (Name, Type, Unit)
+        """
+        ...
+
     def execute_actions(self, hit: Any) -> bool:
         """
         Execute all actions sequence on the given hit.
@@ -109,32 +138,21 @@ class Crawler(ABC):
         self.links += self.extract_links()
         self.close_entrypoint()
 
-    @staticmethod
-    @abstractmethod
-    def links_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
-        """
-        Get links header
-        :param Mode mode: crawl mode
-        :return tuple: (Name, Type, Unit)
-        """
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def hits_header(mode: Mode = Mode.SIMPLE) -> Tuple[Header_ref, ...]:
-        """
-        Get hits header
-        :param Mode mode: crawl mode
-        :return tuple: (Name, Type, Unit)
-        """
-        ...
-
     @abstractmethod
     def init_entrypoint(self) -> Tuple[Any, ...]:
         """
         Initialize entrypoint / resource
         Good example is opening new webpage, when entrypoint is url.
         :return tuple: Resource metadata
+        """
+        ...
+
+    @abstractmethod
+    def close_entrypoint(self) -> None:
+        """
+        Clean allocated resources attached to entrypoint / resource.
+        This method must be reimplemented.
+        :return: None
         """
         ...
 
@@ -173,23 +191,5 @@ class Crawler(ABC):
         This method must be reimplemented.
         :param Any item: Input item
         :return bool: True if item is a Link
-        """
-        ...
-
-    @abstractmethod
-    def close_entrypoint(self) -> None:
-        """
-        Clean allocated resources attached to entrypoint / resource.
-        This method must be reimplemented.
-        :return: None
-        """
-        ...
-
-    @staticmethod
-    @abstractmethod
-    def crawl_modes() -> List[Mode]:
-        """
-        Get available crawl modes.
-        :return tuple: (Mode1, Mode2, ...)
         """
         ...
