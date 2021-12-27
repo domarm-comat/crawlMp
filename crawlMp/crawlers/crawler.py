@@ -65,16 +65,16 @@ class Crawler(ABC):
         return self._links
 
     @links.setter
-    def links(self, new_links: Optional[List[Any]]):
+    def links(self, new_links: Optional[List[Any]]) -> None:
         assert isinstance(new_links, (list, ListProxy)) or new_links is None
         self._links = new_links if new_links is not None else []
 
     @property
-    def actions(self):
+    def actions(self) -> Tuple[Action, ...]:
         return self._actions
 
     @actions.setter
-    def actions(self, new_actions: Tuple[Action, ...]):
+    def actions(self, new_actions: Tuple[Action, ...]) -> None:
         self._actions = () if new_actions is None else new_actions
         for action in self._actions:
             assert isinstance(action, Action)

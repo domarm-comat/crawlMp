@@ -100,7 +100,7 @@ class CrawlMp:
         self._init_workers()
         while True:
             idle_workers = 0
-            if not self.sig_worker_idle.wait(timeout=0.1) and self.stopped or not self.running:
+            if not self.sig_worker_idle.wait(timeout=0.05) and self.stopped or not self.running:
                 # All workers are idle and job_list is empty
                 # All jobs are finished, close all workers
                 self.running = False
@@ -142,8 +142,8 @@ class CrawlMp:
         # Call the Callback if it's set
         if callback is not None:
             callback(self)
-        else:
-            return self
+
+        return self
 
     def _init_start(self) -> None:
         """

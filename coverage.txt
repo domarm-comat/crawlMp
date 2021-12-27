@@ -6,7 +6,7 @@ crawlMp/actions/action.py               9      1    89%
 crawlMp/actions/action_fs.py           47      9    81%
 crawlMp/constants.py                    6      0   100%
 crawlMp/crawlMp.py                    134      3    98%
-crawlMp/crawlWorker.py                 60      0   100%
+crawlMp/crawlWorker.py                 59      0   100%
 crawlMp/crawlers/__init__.py            0      0   100%
 crawlMp/crawlers/crawler.py            97     17    82%
 crawlMp/crawlers/crawler_fs.py         75     13    83%
@@ -22,4 +22,4 @@ crawlMp/tests/test_fileCrawler.py      51      0   100%
 crawlMp/tests/test_fs_actions.py       44      0   100%
 crawlMp/tests/test_snippets.py         31      0   100%
 -------------------------------------------------------
-TOTAL                                 784     48    94%
+TOTAL                                 783     48    94%

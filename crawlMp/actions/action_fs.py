@@ -7,14 +7,17 @@ from crawlMp.actions.action import Action
 
 
 class TargetDir:
-    _target_dir = None
+    """
+    Mixin class providing target_dir property.
+    """
+    _target_dir: str = "."
 
     @property
-    def target_dir(self):
+    def target_dir(self) -> str:
         return self._target_dir
 
     @target_dir.setter
-    def target_dir(self, new_target_dir):
+    def target_dir(self, new_target_dir: str) -> None:
         if not os.path.isdir(new_target_dir):
             # Target dir does not exist, try to create it
             try:

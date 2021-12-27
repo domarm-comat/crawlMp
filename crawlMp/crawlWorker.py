@@ -22,7 +22,7 @@ class CrawlWorker(Process):
     """
     id_gen = worker_id_gen()
 
-    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: List[Any], sig_pause: Event,
+    def __init__(self, results: Results, crawler_class: Type[Crawler], jobs_list: List[Any], sig_pause: Type['Event'],
                  sig_idle: Event, lock_jobs_acq: Lock, buffer_size: int = 96, *args: Any, **kwargs: Any) -> None:
         """
         :param Result results: results object
@@ -79,36 +79,36 @@ class CrawlWorker(Process):
         # Set worker as active
         self.wake_signal.set()
         # Crawl until wake_signal is high
-        while self.wake_signal.wait():
-            if self.stop_signal.is_set():
-                # Check if Worker should stop
+        while True:
+            if not self.wake_signal.wait(timeout=0.05) and self.stop_signal.is_set():
                 break
-            elif self.sig_pause.is_set():
-                self.wake_signal.clear()
-                self.sig_idle.set()
-            elif crawler.links:
-                # Crawl next link
-                next(crawler)
-                if self.sig_idle.is_set() and len(crawler.links) > self.buffer_size:
-                    # One of the workers is IDLE and Worker has more links than buffer size
-                    # Keep links of buffer size
-                    self.jobs_list += crawler.links[self.buffer_size:]
-                    # Remove those links from crawler links
-                    del crawler.links[self.buffer_size:]
-            elif self.jobs_list:
-                # Crawler has no links to follow, but there are some links already in job_queue
-                # Fill crawler.links from jobs_list of buffer_size
-                with self.lock_jobs_acq:
-                    crawler.links += self.jobs_list[:self.buffer_size]
-                    # Remove fetched links from jobs_list
-                    del self.jobs_list[:self.buffer_size]
             else:
-                # job_queue is empty
-                flush_results(crawler)
-                # set wake_signal to low
-                self.wake_signal.clear()
-                # set worker_idle_signal to high
-                self.sig_idle.set()
+                if self.sig_pause.is_set():
+                    self.wake_signal.clear()
+                    self.sig_idle.set()
+                elif crawler.links:
+                    # Crawl next link
+                    next(crawler)
+                    if self.sig_idle.is_set() and len(crawler.links) > self.buffer_size:
+                        # One of the workers is IDLE and Worker has more links than buffer size
+                        # Keep links of buffer size
+                        self.jobs_list += crawler.links[self.buffer_size:]
+                        # Remove those links from crawler links
+                        del crawler.links[self.buffer_size:]
+                elif self.jobs_list:
+                    # Crawler has no links to follow, but there are some links already in job_queue
+                    # Fill crawler.links from jobs_list of buffer_size
+                    with self.lock_jobs_acq:
+                        crawler.links += self.jobs_list[:self.buffer_size]
+                        # Remove fetched links from jobs_list
+                        del self.jobs_list[:self.buffer_size]
+                else:
+                    # job_queue is empty
+                    flush_results(crawler)
+                    # set wake_signal to low
+                    self.wake_signal.clear()
+                    # set worker_idle_signal to high
+                    self.sig_idle.set()
         flush_results(crawler)
 
     def stop(self) -> None:
