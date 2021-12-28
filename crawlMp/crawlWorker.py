@@ -80,7 +80,7 @@ class CrawlWorker(Process):
         self.wake_signal.set()
         # Crawl until wake_signal is high
         while True:
-            if not self.wake_signal.wait(timeout=0.05) and self.stop_signal.is_set():
+            if not self.wake_signal.wait(timeout=0.1) and self.stop_signal.is_set():
                 break
             else:
                 if self.sig_pause.is_set():

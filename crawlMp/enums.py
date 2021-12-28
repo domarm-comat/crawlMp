@@ -16,6 +16,8 @@ class Header(Enum):
     SIZE = "Size"
     MODIFIED = "Modified"
     ACCESSED = "Accessed"
+    INPUT = "Input"
+    OUTPUT = "Output"
 
     def __str__(self) -> str:
         return self.value

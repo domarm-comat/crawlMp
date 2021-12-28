@@ -81,7 +81,7 @@ def batch_done_cb(manager):
 @pytest.mark.parametrize("num_proc", [1, 2])
 def test_crawlMp_append_job_keep_alive(fake_fs, num_proc):
     done_event = Event()
-    manager = CrawlMp(CrawlerFs, links=["/"], num_proc=num_proc, keepalive=False, on_batch_done=batch_done_cb)
+    manager = CrawlMp(CrawlerFs, links=["/"], num_proc=num_proc, keepalive=True, on_batch_done=batch_done_cb)
     manager.start(callback=lambda results: done_cb(results, done_event))
     sleep(2)
     manager.append_links(["/"])

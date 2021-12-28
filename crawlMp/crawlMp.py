@@ -23,7 +23,7 @@ class CrawlMp:
     running = False
     batch_id = 0
 
-    def __init__(self, crawler_class: Type[Crawler], links: List[Any], keepalive: bool = True,
+    def __init__(self, crawler_class: Type[Crawler], links: List[Any], keepalive: bool = False,
                  on_batch_done: Optional[Callable] = None, num_proc: int = 4, buffer_size: int = 96,
                  actions: Optional[Tuple[Action, ...]] = None, *args: Any, **kwargs: Any) -> None:
         """
@@ -100,7 +100,7 @@ class CrawlMp:
         self._init_workers()
         while True:
             idle_workers = 0
-            if not self.sig_worker_idle.wait(timeout=0.05) and self.stopped or not self.running:
+            if not self.sig_worker_idle.wait(timeout=0.1) and self.stopped or not self.running:
                 # All workers are idle and job_list is empty
                 # All jobs are finished, close all workers
                 self.running = False
@@ -129,7 +129,7 @@ class CrawlMp:
                 self.batch_id += 1
                 if self.on_batch_done is not None:
                     self.on_batch_done(self)
-                if self.keepalive:
+                if not self.keepalive:
                     self.running = False
                     self.stop_workers()
                     break

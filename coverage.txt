@@ -10,8 +10,8 @@ crawlMp/crawlWorker.py                 59      0   100%
 crawlMp/crawlers/__init__.py            0      0   100%
 crawlMp/crawlers/crawler.py            97     17    82%
 crawlMp/crawlers/crawler_fs.py         75     13    83%
-crawlMp/enums.py                       16      2    88%
-crawlMp/results.py                     21      0   100%
+crawlMp/enums.py                       18      2    89%
+crawlMp/results.py                     24      0   100%
 crawlMp/snippets/__init__.py            0      0   100%
 crawlMp/snippets/output.py             12      0   100%
 crawlMp/tests/__init__.py               0      0   100%
@@ -22,4 +22,4 @@ crawlMp/tests/test_fileCrawler.py      51      0   100%
 crawlMp/tests/test_fs_actions.py       44      0   100%
 crawlMp/tests/test_snippets.py         31      0   100%
 -------------------------------------------------------
-TOTAL                                 783     48    94%
+TOTAL                                 788     48    94%

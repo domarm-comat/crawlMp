@@ -35,6 +35,10 @@ class Results:
         self.hits_header = hits_header
         self.links_header = links_header
 
+    @property
+    def duration(self) -> float:
+        return self.done_time - self.start_time
+
     def reset(self) -> None:
         """
         Reset all results to empty list.
