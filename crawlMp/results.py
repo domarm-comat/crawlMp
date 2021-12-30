@@ -4,7 +4,7 @@ from typing import Tuple, List, Any
 from pandas import DataFrame
 
 from crawlMp import share_manager
-from crawlMp.crawlers.crawler import Header_ref
+from crawlMp.enums import Header_ref
 
 
 class Results:
