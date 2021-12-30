@@ -50,11 +50,11 @@ class CrawlWorker(Process):
         self.kwargs = kwargs
 
     @property
-    def buffer_size(self):
+    def buffer_size(self) -> int:
         return self._buffer_size
 
     @buffer_size.setter
-    def buffer_size(self, new_buffer_size: int):
+    def buffer_size(self, new_buffer_size: int) -> None:
         assert new_buffer_size >= 1
         self._buffer_size = new_buffer_size
 
