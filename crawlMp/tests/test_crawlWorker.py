@@ -3,6 +3,7 @@ from threading import Thread, Lock
 from time import sleep
 
 import pytest
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from crawlMp.crawlWorker import CrawlWorker
 from crawlMp.crawlers.crawler_fs import CrawlerFs
@@ -10,7 +11,7 @@ from crawlMp.results import Results
 
 
 @pytest.mark.parametrize('factor', range(2, 10, 2))
-def test_crawl_worker(fake_fs, factor):
+def test_crawl_worker(fake_fs: FakeFilesystem, factor: int) -> None:
     sig_pause = Event()
     sig_idle = Event()
     results = Results(CrawlerFs.hits_header(), CrawlerFs.links_header())

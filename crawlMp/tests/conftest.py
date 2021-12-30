@@ -1,10 +1,12 @@
 import os.path
+from typing import Generator
 
 import pytest
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 
 @pytest.fixture(scope="session")
-def fs_files_mock():
+def fs_files_mock() -> Generator:
     path = "./crawlMp/tests/fs_files.txt"
     if not os.path.exists(path):
         path = "./fs_files.txt"
@@ -13,7 +15,7 @@ def fs_files_mock():
 
 
 @pytest.fixture
-def fake_fs(fs_files_mock, fs):
+def fake_fs(fs_files_mock: list, fs: FakeFilesystem) -> Generator:
     p_size, p_name, p_type = fs_files_mock[0].strip().split("\t")
     ch_perm_to = []
     for mock_file in fs_files_mock:

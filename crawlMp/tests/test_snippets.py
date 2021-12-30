@@ -1,14 +1,16 @@
 import re
 from copy import copy
+from typing import List
 
 import pytest
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from crawlMp.crawlers.crawler_fs import CrawlerFs
 from crawlMp.snippets.output import print_summary, print_list
 
 
 @pytest.mark.parametrize("links", [["/"]])
-def test_print_summary(fake_fs, links, capsys):
+def test_print_summary(fake_fs: FakeFilesystem, links: List[str], capsys) -> None:
     crawl = None
     for crawl in CrawlerFs(copy(links), max_depth=2):
         pass
@@ -22,7 +24,7 @@ def test_print_summary(fake_fs, links, capsys):
     assert re.match(expected_output, captured.out) is not None
 
 
-def test_print_summary_no_result(capsys):
+def test_print_summary_no_result(capsys) -> None:
     print_summary(None)
     captured = capsys.readouterr()
 
@@ -31,7 +33,7 @@ def test_print_summary_no_result(capsys):
 
 
 @pytest.mark.parametrize("links", [["/"]])
-def test_print_list(fake_fs, links, capsys):
+def test_print_list(fake_fs: FakeFilesystem, links: List[str], capsys) -> None:
     crawl = None
     for crawl in CrawlerFs(copy(links), max_depth=1):
         pass

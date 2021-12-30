@@ -1,9 +1,12 @@
 import math
 from copy import copy
+from typing import List, Type
 
 import pytest
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 from crawlMp.crawlMp import CrawlMp
+from crawlMp.crawlers.crawler import Crawler
 from crawlMp.crawlers.crawler_fs import CrawlerFs, CrawlerSearchFs
 from crawlMp.enums import Mode
 
@@ -11,7 +14,8 @@ from crawlMp.enums import Mode
 @pytest.mark.parametrize("links", [["/"], ["/doc/source", "/numpy/doc"]], ids=["all", "two-dir"])
 @pytest.mark.parametrize("max_depth", [0, 1, 2, math.inf], ids=["0", "1", "2", "all"])
 @pytest.mark.parametrize("crawler_class", [CrawlerFs, CrawlerSearchFs], ids=["fc", "fcs"])
-def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
+def test_fs_crawl(fake_fs: FakeFilesystem, crawler_class: Type[Crawler], links: List[str], max_depth: int,
+                  request) -> None:
     test_id = request.node.callspec.id
     expected = {
         "fc-0-all": [38, 1, 0],
@@ -40,13 +44,13 @@ def test_fs_crawl(fake_fs, crawler_class, links, max_depth, request):
 
 
 @pytest.mark.parametrize("links", ["", "not_list", "/not/list"])
-def test_fs_crawl_entrypoint_fail(fake_fs, links):
+def test_fs_crawl_entrypoint_fail(fake_fs, links) -> None:
     with pytest.raises(AssertionError):
         CrawlerFs(links)
 
 
 @pytest.mark.parametrize("links", [["fail"], ["6"], ['/doc/source/af2py/', '/doc/csource/f2py/']])
-def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
+def test_fs_crawl_faulty_entrypoint_fail(fake_fs: FakeFilesystem, links: List[str], request):
     test_id = request.node.callspec.id
 
     manager = CrawlMp(CrawlerFs, links=copy(links), num_proc=1)
@@ -62,7 +66,7 @@ def test_fs_crawl_faulty_entrypoint_fail(fake_fs, links, request):
 
 @pytest.mark.parametrize("depth", [1, math.inf, 2, 3], ids=["d0", "d1", "d2", "d3"])
 @pytest.mark.parametrize("pattern", ["\.py$", "\.svg$", "\.rst$", "\.build$|\.pyf$"], ids=["r0", "r1", "r2", "r3"])
-def test_fs_crawl_search(fake_fs, depth, pattern, request):
+def test_fs_crawl_search(fake_fs: FakeFilesystem, depth: int, pattern: str, request):
     test_id = request.node.callspec.id
     expected = {
         "r0-d0": (4, 1, 0),
@@ -91,7 +95,7 @@ def test_fs_crawl_search(fake_fs, depth, pattern, request):
 
 
 @pytest.mark.parametrize("num_proc", [1, 2])
-def test_fs_crawl_extended_search(fake_fs, num_proc):
+def test_fs_crawl_extended_search(fake_fs: FakeFilesystem, num_proc: int) -> None:
     manager = CrawlMp(CrawlerSearchFs, links=["/"], num_proc=num_proc, pattern="\.py$", max_depth=2,
                       mode=Mode.EXTENDED)
     manager.start()
@@ -101,5 +105,5 @@ def test_fs_crawl_extended_search(fake_fs, num_proc):
     assert len(manager.results.links_skipped) == 2
 
 
-def test_fs_crawl_modes(fake_fs):
+def test_fs_crawl_modes(fake_fs: FakeFilesystem) -> None:
     assert CrawlerFs.crawl_modes() == [Mode.SIMPLE, Mode.EXTENDED]
